@@ -1,21 +1,26 @@
+use starknet::ContractAddress;
+
 #[starknet::interface]
 trait IPlayerActions<TContractState> {
-    fn register_player(ref world: TContractState, username: felt252, referrer: ContractAddress);
+    fn register_player(ref self: TContractState, username: felt252, referrer: ContractAddress);
 }
 
 #[dojo::contract]
 mod player_system {
     use super::IPlayerActions;
     use starknet::{ContractAddress, get_caller_address};
-    use wordle::models::{
+    use tweetle_dojo::models::{
         player::{Player, PlayerUsername, PlayerFriend},
         game_stats::GameStats
     };
+    use core::num::traits::Zero;
+    use dojo::event::EventStorage;
+    use dojo::model::ModelStorage;
 
     #[abi(embed_v0)]
     impl PlayerActionsImpl of IPlayerActions<ContractState> {
         fn register_player(
-            ref world: ContractState,
+            ref self: ContractState,
             username: felt252,
             referrer: ContractAddress
         ) {
@@ -44,7 +49,7 @@ mod player_system {
             
             // Handle referrer
             if !referrer.is_zero() && referrer != caller {
-                let referrer_player: Player = world.read_model(referrer);
+                let mut referrer_player: Player = world.read_model(referrer);
                 if referrer_player.is_registered {
                     player.referrer = referrer;
                     
@@ -59,7 +64,7 @@ mod player_system {
                     let mut updated_referrer = referrer_player;
                     updated_referrer.friends_count += 1;
                     
-                    world.write_model(@Player);
+                    world.write_model(@referrer_player);
                 }
             }
             
@@ -69,11 +74,20 @@ mod player_system {
                 address: caller
             };
             
-            world.write_model(@Player);
+            world.write_model(@player);
             
             // Emit event
             // emit!(world, PlayerRegistered { player: caller, username });
-            world.emit_event(@PlayerRegistered { player: caller, username });
+            // world.emit_event(@PlayerRegistered { player: caller, username }); // i will add this event later
+        }
+    }
+
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        /// Use the default namespace "dojo_starter". This function is handy since the ByteArray
+        /// can't be const.
+        fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
+            self.world(@"tweetle_dojo")
         }
     }
 }
