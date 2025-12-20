@@ -1,0 +1,25 @@
+[world]
+name = "tweetle_dojo"
+description = "A wordle game built on Dojo"
+cover_uri = "file://assets/cover.png"
+icon_uri = "file://assets/icon.png"
+website = "https://github.com/dojoengine/dojo-starter"
+seed = "tweetle_dojo"
+
+[world.socials]
+x = "https://x.com/ohayo_dojo"
+discord = "https://discord.gg/FB2wR6uF"
+github = "https://github.com/dojoengine/dojo-starter"
+telegram = "https://t.me/dojoengine"
+
+[namespace]
+default = "tweetle_dojo"
+
+[env]
+rpc_url = ""         # env: STARKNET_RPC_URL
+account_address = "" # env: DOJO_ACCOUNT_ADDRESS
+private_key = ""     # env: DOJO_PRIVATE_KEY
+# world_address = "<world address>"
+
+[writers]
+"tweetle_dojo" = ["tweetle_dojo-actions"]

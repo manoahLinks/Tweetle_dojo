@@ -3,7 +3,7 @@
     "class_hash": "0x7c9469d45a9cdbab775035afb48e1fa73fb35ab059fcb9dfb0a301aa973e783",
     "address": "0x65ee8188c171a836294feaa931f1c78b5f18957791c039e84ee40b4b3e85d3e",
     "seed": "dojo_starter",
-    "name": "Dojo starter",
+    "name": "tweetle_dojo",
     "entrypoints": [
       "uuid",
       "set_metadata",
@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x6b46c6af50400d006fa03bd0c09b0aa4780295c710f6c91163f5eac9ebe6e98",
-      "class_hash": "0x780b350adc7f55fed3a7f80267eb4fe0b66399e1cdbe6027561ab882f284c97",
+      "address": "0x56c127a83e22793526f60a3cbbc2671b1dee4ac4876aaa6221ba7effe7d6fac",
+      "class_hash": "0x601c35b2c2542269a35933287ecf2e43210e93858f33f51e791282ca18e5343",
       "abi": [
         {
           "type": "impl",
@@ -1464,7 +1464,7 @@
         },
         {
           "type": "event",
-          "name": "dojo_starter::systems::actions::actions::Event",
+          "name": "tweetle_dojo::systems::actions::actions::Event",
           "kind": "enum",
           "variants": [
             {
@@ -1481,9 +1481,213 @@
         }
       ],
       "init_calldata": [],
-      "tag": "dojo_starter-actions",
-      "selector": "0x7a1c71029f2d0b38e3ac89b09931d08b6e48417e079c289ff19a8698d0cba33",
+      "tag": "tweetle_dojo-actions",
+      "selector": "0x4d4be89df67278eb302460a60a43d4de8cc152d447e0ca6fe49b37944ac69a8",
       "systems": [
+        "upgrade"
+      ]
+    },
+    {
+      "address": "0x5e9a48399ba7385ac1f4f9cd50cd91db28eaa016fd1c210cc8dc708a9fb5b08",
+      "class_hash": "0x2eb9766e6bf79bf4476f47a743b279e60a0093ca1f175f0405a00cd3586ffea",
+      "abi": [
+        {
+          "type": "impl",
+          "name": "player_system__ContractImpl",
+          "interface_name": "dojo::contract::interface::IContract"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::interface::IContract",
+          "items": []
+        },
+        {
+          "type": "impl",
+          "name": "player_system__DeployedContractImpl",
+          "interface_name": "dojo::meta::interface::IDeployedResource"
+        },
+        {
+          "type": "struct",
+          "name": "core::byte_array::ByteArray",
+          "members": [
+            {
+              "name": "data",
+              "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+              "name": "pending_word",
+              "type": "core::felt252"
+            },
+            {
+              "name": "pending_word_len",
+              "type": "core::integer::u32"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::meta::interface::IDeployedResource",
+          "items": [
+            {
+              "type": "function",
+              "name": "dojo_name",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::byte_array::ByteArray"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "PlayerActionsImpl",
+          "interface_name": "tweetle_dojo::systems::player_system::IPlayerActions"
+        },
+        {
+          "type": "interface",
+          "name": "tweetle_dojo::systems::player_system::IPlayerActions",
+          "items": [
+            {
+              "type": "function",
+              "name": "register_player",
+              "inputs": [
+                {
+                  "name": "username",
+                  "type": "core::felt252"
+                },
+                {
+                  "name": "referrer",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "dojo_init",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "view"
+        },
+        {
+          "type": "impl",
+          "name": "WorldProviderImpl",
+          "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
+        },
+        {
+          "type": "struct",
+          "name": "dojo::world::iworld::IWorldDispatcher",
+          "members": [
+            {
+              "name": "contract_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::world_provider::IWorldProvider",
+          "items": [
+            {
+              "type": "function",
+              "name": "world_dispatcher",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "dojo::world::iworld::IWorldDispatcher"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "UpgradeableImpl",
+          "interface_name": "dojo::contract::components::upgradeable::IUpgradeable"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::upgradeable::IUpgradeable",
+          "items": [
+            {
+              "type": "function",
+              "name": "upgrade",
+              "inputs": [
+                {
+                  "name": "new_class_hash",
+                  "type": "core::starknet::class_hash::ClassHash"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "constructor",
+          "name": "constructor",
+          "inputs": []
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "Upgraded",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+              "kind": "nested"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "enum",
+          "variants": []
+        },
+        {
+          "type": "event",
+          "name": "tweetle_dojo::systems::player_system::player_system::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "UpgradeableEvent",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+              "kind": "nested"
+            },
+            {
+              "name": "WorldProviderEvent",
+              "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+              "kind": "nested"
+            }
+          ]
+        }
+      ],
+      "init_calldata": [],
+      "tag": "tweetle_dojo-player_system",
+      "selector": "0x5a8f02faa7e2f1fdf3788cb952b2592b79d1930240a758019050d8dbcaf712c",
+      "systems": [
+        "register_player",
         "upgrade"
       ]
     }
@@ -1492,33 +1696,75 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x377a92029d4fda7499000f0a72982484a8b6d3f325b5c42d18e3ecb8496488",
-      "tag": "dojo_starter-ClassicGame",
-      "selector": "0x2f87ee781dae3c95c9150bc1e92ca7ee6341ebc2516bbed2c3cca586be4f6d5"
+      "class_hash": "0x13886e735bfcbaf60c61ba7822ce63ef9f145a452ce912f5061918a4cdc372c",
+      "tag": "tweetle_dojo-ClassicAttempt",
+      "selector": "0x75de766e8f83ab0d3afab7a814bfe54033f006fca33066a47b025c2a31a18c1"
     },
     {
       "members": [],
-      "class_hash": "0x30d25ce95d4e9a7b94efeeb54e66566ee4d7e8cf0fa7d53a8dc50d734954798",
-      "tag": "dojo_starter-ClassicGameAttemptCount",
-      "selector": "0x66a675d8e74bda47546de084edd7c85b1d79bfffa2b94425a106c32ba35bb7f"
+      "class_hash": "0x58877c97251952018c7d6de4a632358527b3f66ad68e6818f92eef4659bcbc5",
+      "tag": "tweetle_dojo-ClassicGame",
+      "selector": "0x647620a84d44122a266fb5b2f19b9a5847e4b40679cb2213d4444872aecf245"
     },
     {
       "members": [],
-      "class_hash": "0x3de7a4ef04409433accb14c4efe127fe56facc4f79432e83cf465358624ef20",
-      "tag": "dojo_starter-Player",
-      "selector": "0x1cccb05d982525914bcdce99f0af51556dcb8d9f0e2317c0ad0221d13a809f9"
+      "class_hash": "0x1ad12be49f1b01f41ca71bd2a64b1a1d69582ea1a803599c874ceb03deb83c7",
+      "tag": "tweetle_dojo-ClassicGameAttemptCount",
+      "selector": "0x727bced4519251f1aa4dbf111ae4dc79bd145ec786b5ee2c605412296166f18"
     },
     {
       "members": [],
-      "class_hash": "0x2ba9f908737b149ac43309641b557e824bdc8b0457bab01a1cb03c29444865b",
-      "tag": "dojo_starter-PlayerFriend",
-      "selector": "0xcd554fc8569009c475b81ed10b73adf1e47c6b4fc985d2341315332e7c1bc5"
+      "class_hash": "0x22c42aad228115c180fceaa52eeff08d9f11163bb222f9abff1438139b76ea9",
+      "tag": "tweetle_dojo-DailyAttempt",
+      "selector": "0x55c63e589eda56693e14ad4111115726bf3f871e2d97df38ed6c2395bcbee48"
     },
     {
       "members": [],
-      "class_hash": "0x2376c3e61d9f878bdefa3455380cb6d21ff8ed004b897095c49708e47ee25a3",
-      "tag": "dojo_starter-PlayerUsername",
-      "selector": "0x590f3a76ef1871f315fe608030de1e04fa8a7272a4b3e0293ff1b68832c9364"
+      "class_hash": "0x6ed26f784560970fd355194a0fb40c3ebf94e5dd4415f179e87f9ed8eedd771",
+      "tag": "tweetle_dojo-DailyAttemptCount",
+      "selector": "0x27e54e86ae07274e2603b0ce7d3a3f16b76cb82dbe6ef419290d340c64e005"
+    },
+    {
+      "members": [],
+      "class_hash": "0x6d4e66f388a44e148180a8331cd9ceba7d6e4bfec539ccae7e576eeee2f1466",
+      "tag": "tweetle_dojo-DailyGame",
+      "selector": "0x5f4236475b5d7d5a53b9013bf9a68b2ef15a838b41433ba80fecf5408675456"
+    },
+    {
+      "members": [],
+      "class_hash": "0x1bf32c9d4eeba015b724fcbe00e247e0436f6857d4d3938fb380582bf796a5b",
+      "tag": "tweetle_dojo-DailyPlayer",
+      "selector": "0x1087428ac72639e0b9bacddcd72007d51ed17405aae71e9b4fea03a1f70b83c"
+    },
+    {
+      "members": [],
+      "class_hash": "0x3ad6553489a016a9688f4c057ddfa9c308c900de80c04b9b9a576b041fb215a",
+      "tag": "tweetle_dojo-DailyWinner",
+      "selector": "0x6c16959ce5a541aa2dc61f91b92495c96de23d8f6a423132b4e1972d651a62c"
+    },
+    {
+      "members": [],
+      "class_hash": "0x6e882d0695be39c1e662ee223967fdbfb174899eee9299d04dfd5145f338e2f",
+      "tag": "tweetle_dojo-GameStats",
+      "selector": "0x1cf7bfa071393a46cddfafbfe7e06ef6150809a1cbd4c7a12293b837cd38fdc"
+    },
+    {
+      "members": [],
+      "class_hash": "0x65bfc142e380f632b5a0a1b3965e86b99eed1a5bcbab1977d53d40642b1167f",
+      "tag": "tweetle_dojo-Player",
+      "selector": "0x5c1e7485fa96fa9c00bb7ff51618715a5b78e8e0bab200412313826821898a5"
+    },
+    {
+      "members": [],
+      "class_hash": "0x6014798eb2a9641c69efd1ff8c75d4f9730cf446b54f387173f05e41a4a0e62",
+      "tag": "tweetle_dojo-PlayerFriend",
+      "selector": "0x3e06279a1d24065b86e46c14aa53a9e3232dd5673ba857756374d786f64569e"
+    },
+    {
+      "members": [],
+      "class_hash": "0x40d8ce805ffc48639391613b996414dcb65d048c95928582d7607c8d3f4854",
+      "tag": "tweetle_dojo-PlayerUsername",
+      "selector": "0x3486dbe329a76e6e26c53610a9f244e0157c3ed7b209aa4012f0904e0a7059b"
     }
   ],
   "events": [],
