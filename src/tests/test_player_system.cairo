@@ -1,16 +1,15 @@
 #[cfg(test)]
 mod tests {
     use dojo_cairo_test::WorldStorageTestTrait;
-    use dojo::model::{ModelStorage, ModelStorageTest};
+    use dojo::model::ModelStorage;
     use dojo::world::WorldStorageTrait;
     use dojo_cairo_test::{spawn_test_world, NamespaceDef, TestResource, ContractDefTrait, ContractDef};
     use tweetle_dojo::models::player::{Player, PlayerUsername};
-    use tweetle_dojo::systems::player_system::
-    // {
-    //     player_system,
-    //     IPlayerActionsDispatcher,
-    //     IPlayerActionsDispatcherTrait
-    // };
+    use tweetle_dojo::systems::player_system::{
+        player_system,
+        IPlayerActionsDispatcher,
+        IPlayerActionsDispatcherTrait
+    };
     use starknet::ContractAddress;
 
     fn namespace_def() -> NamespaceDef {
