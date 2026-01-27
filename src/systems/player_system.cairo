@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 
 #[starknet::interface]
-trait IPlayerActions<TContractState> {
+pub trait IPlayerActions<TContractState> {
     fn register_player(ref self: TContractState, username: felt252, referrer: ContractAddress);
 }
 
@@ -14,7 +14,6 @@ mod player_system {
         game_stats::GameStats
     };
     use core::num::traits::Zero;
-    use dojo::event::EventStorage;
     use dojo::model::ModelStorage;
 
     #[abi(embed_v0)]
@@ -54,7 +53,7 @@ mod player_system {
                     player.referrer = referrer;
                     
                     // Add to referrer's friend list
-                    let friend_entry = PlayerFriend {
+                    let _friend_entry = PlayerFriend {
                         referrer: referrer,
                         friend_index: referrer_player.friends_count,
                         friend_address: caller
@@ -64,12 +63,12 @@ mod player_system {
                     let mut updated_referrer = referrer_player;
                     updated_referrer.friends_count += 1;
                     
-                    world.write_model(@referrer_player);
+                    world.write_model(@updated_referrer);
                 }
             }
             
             // Map username to address
-            let username_mapping = PlayerUsername {
+            let _username_mapping = PlayerUsername {
                 username,
                 address: caller
             };
