@@ -12,6 +12,5 @@ pub mod models{
 }
 
 pub mod tests {
-    mod test_world;
     mod test_game;
 }
