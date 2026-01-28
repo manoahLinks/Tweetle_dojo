@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x56c127a83e22793526f60a3cbbc2671b1dee4ac4876aaa6221ba7effe7d6fac",
-      "class_hash": "0x601c35b2c2542269a35933287ecf2e43210e93858f33f51e791282ca18e5343",
+      "address": "0x3bdaea0608ad89f969d7119d573d963d8097c2d04abe8b21e7f8b95fdb6d10a",
+      "class_hash": "0x4ac872c986f80478a75785643bcb972583f32fd4ae8a708ebda9fa19d03ca02",
       "abi": [
         {
           "type": "impl",
@@ -1362,6 +1362,40 @@
                 }
               ],
               "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "ActionsImpl",
+          "interface_name": "tweetle_dojo::systems::actions::IActions"
+        },
+        {
+          "type": "interface",
+          "name": "tweetle_dojo::systems::actions::IActions",
+          "items": [
+            {
+              "type": "function",
+              "name": "start_game",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "submit_guess",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u64"
+                },
+                {
+                  "name": "guess",
+                  "type": "core::felt252"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
             }
           ]
         },
@@ -1484,12 +1518,14 @@
       "tag": "tweetle_dojo-actions",
       "selector": "0x4d4be89df67278eb302460a60a43d4de8cc152d447e0ca6fe49b37944ac69a8",
       "systems": [
+        "start_game",
+        "submit_guess",
         "upgrade"
       ]
     },
     {
-      "address": "0x5e9a48399ba7385ac1f4f9cd50cd91db28eaa016fd1c210cc8dc708a9fb5b08",
-      "class_hash": "0x2eb9766e6bf79bf4476f47a743b279e60a0093ca1f175f0405a00cd3586ffea",
+      "address": "0x45f524df114244f2f0a34414104b4ffd967c79081b40ccb87489df171ee7bb1",
+      "class_hash": "0x1d20f412463d3b8e55c092e520520990edd1b59d2a58f56fea8fb110daa9188",
       "abi": [
         {
           "type": "impl",
@@ -1723,24 +1759,6 @@
       "class_hash": "0x6ed26f784560970fd355194a0fb40c3ebf94e5dd4415f179e87f9ed8eedd771",
       "tag": "tweetle_dojo-DailyAttemptCount",
       "selector": "0x27e54e86ae07274e2603b0ce7d3a3f16b76cb82dbe6ef419290d340c64e005"
-    },
-    {
-      "members": [],
-      "class_hash": "0x6d4e66f388a44e148180a8331cd9ceba7d6e4bfec539ccae7e576eeee2f1466",
-      "tag": "tweetle_dojo-DailyGame",
-      "selector": "0x5f4236475b5d7d5a53b9013bf9a68b2ef15a838b41433ba80fecf5408675456"
-    },
-    {
-      "members": [],
-      "class_hash": "0x1bf32c9d4eeba015b724fcbe00e247e0436f6857d4d3938fb380582bf796a5b",
-      "tag": "tweetle_dojo-DailyPlayer",
-      "selector": "0x1087428ac72639e0b9bacddcd72007d51ed17405aae71e9b4fea03a1f70b83c"
-    },
-    {
-      "members": [],
-      "class_hash": "0x3ad6553489a016a9688f4c057ddfa9c308c900de80c04b9b9a576b041fb215a",
-      "tag": "tweetle_dojo-DailyWinner",
-      "selector": "0x6c16959ce5a541aa2dc61f91b92495c96de23d8f6a423132b4e1972d651a62c"
     },
     {
       "members": [],

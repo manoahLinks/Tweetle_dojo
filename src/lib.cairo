@@ -4,7 +4,12 @@ pub mod systems {
     pub mod word;
 }
 
-pub mod models;
+pub mod models{
+    pub mod player;
+    pub mod game;
+    pub mod attempt;
+    pub mod game_stats;
+}
 
 pub mod tests {
     mod test_world;
