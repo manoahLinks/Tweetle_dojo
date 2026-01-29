@@ -15,6 +15,18 @@ mod actions {
     };
     use tweetle_dojo::systems::word::word;
     use dojo::model::ModelStorage;
+    use starknet::ContractAddress;
+    use dojo::event::EventStorage;
+
+
+
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct GameStarted {
+        #[key]
+        pub game_id: u64,
+        pub player: ContractAddress,
+    }
 
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
@@ -51,6 +63,8 @@ mod actions {
             world.write_model(@player);
             world.write_model(@game);
             world.write_model(@attempt_count);
+
+            world.emit_event(@GameStarted{game_id: game_id, player: caller});
         }
 
         fn submit_guess(ref self: ContractState, game_id: u64, guess: felt252) {
