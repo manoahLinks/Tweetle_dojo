@@ -28,6 +28,35 @@ mod actions {
         pub player: ContractAddress,
     }
 
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct GuessSubmitted {
+        #[key]
+        pub game_id: u64,
+        pub player: ContractAddress,
+        pub attempt_number: u8,
+        pub word: felt252,
+        pub hint_packed: u16,
+    }
+
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct GameWon {
+        #[key]
+        pub game_id: u64,
+        pub player: ContractAddress,
+        pub attempts: u8,
+        pub points_earned: u64,
+    }
+
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct GameLost {
+        #[key]
+        pub game_id: u64,
+        pub player: ContractAddress
+    }
+
     #[abi(embed_v0)]
     impl ActionsImpl of IActions<ContractState> {
         fn start_game(ref self: ContractState) {
@@ -91,13 +120,34 @@ mod actions {
                 hint_packed,
             };
 
+            world.emit_event(@GuessSubmitted {
+                game_id,
+                player: caller,
+                attempt_number: attempt_info.count,
+                word: guess,
+                hint_packed,
+            });
+
             if hint_packed == 682 { // 0x2AA = 682
                 game.has_ended = true;
                 let mut player: Player = world.read_model(caller);
                 player.points += (7 - attempt_info.count).into() * 10;
                 world.write_model(@player);
+
+                world.emit_event(@GameWon {
+                    game_id,
+                    player: caller,
+                    attempts: attempt_info.count,
+                    points_earned: player.points,
+                });
+
             } else if attempt_info.count == 6 {
                 game.has_ended = true;
+
+                world.emit_event(@GameLost {
+                    game_id,
+                    player: caller
+                });
             }
 
             world.write_model(@game);
