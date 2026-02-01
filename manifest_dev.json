@@ -1312,8 +1312,8 @@
   },
   "contracts": [
     {
-      "address": "0x3bdaea0608ad89f969d7119d573d963d8097c2d04abe8b21e7f8b95fdb6d10a",
-      "class_hash": "0x4ac872c986f80478a75785643bcb972583f32fd4ae8a708ebda9fa19d03ca02",
+      "address": "0x2188854bd43549959775c31e6680b81de77cff4100577489999a6a147d9394f",
+      "class_hash": "0x78e9cef4718918b6d6198ef735e5d58e4bd05bd56ad6cfb11221f370a9ca000",
       "abi": [
         {
           "type": "impl",
@@ -1785,6 +1785,31 @@
       "selector": "0x3486dbe329a76e6e26c53610a9f244e0157c3ed7b209aa4012f0904e0a7059b"
     }
   ],
-  "events": [],
+  "events": [
+    {
+      "members": [],
+      "class_hash": "0x67742611ba33248414ece0eae36cdff922e94b7b9d0a7b54b24ee59f10ad889",
+      "tag": "tweetle_dojo-GameLost",
+      "selector": "0x562881f2da73a85b283a91ae915a32761f149aa9390b4425cf606aaada79926"
+    },
+    {
+      "members": [],
+      "class_hash": "0x540f15d89ef4542ea08fdf890c1ef2c69eb4226c366c2d7fa261c4e943917cf",
+      "tag": "tweetle_dojo-GameStarted",
+      "selector": "0x1aa3861e09960b7e9052afd5e735636380f53ebbb5cf5d4cb732f92956ebe96"
+    },
+    {
+      "members": [],
+      "class_hash": "0x3579bff8aad039e32ec375d9b1909a4dfed5dfdb5e97f76477761d5ea06b826",
+      "tag": "tweetle_dojo-GameWon",
+      "selector": "0x27c25eaaf5884ef12889289ca5c11be36520041c99fae01aaed53d009eaa26b"
+    },
+    {
+      "members": [],
+      "class_hash": "0x549b217e30e36ce491f53345155942ac0479703a8578dc41fa705b5c43b116",
+      "tag": "tweetle_dojo-GuessSubmitted",
+      "selector": "0x98b2824d5b8f84b5ab2040e01e3c3c5666316793bcd0aa224cd20fa4b93a9b"
+    }
+  ],
   "external_contracts": []
 }
