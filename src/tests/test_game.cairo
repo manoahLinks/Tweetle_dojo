@@ -34,6 +34,10 @@ mod tests {
                 TestResource::Model(m_GameStats::TEST_CLASS_HASH),
                 TestResource::Contract(player_system::TEST_CLASS_HASH),
                 TestResource::Contract(actions::TEST_CLASS_HASH),
+                TestResource::Event(actions::e_GameStarted::TEST_CLASS_HASH),    
+                TestResource::Event(actions::e_GuessSubmitted::TEST_CLASS_HASH),
+                TestResource::Event(actions::e_GameWon::TEST_CLASS_HASH),
+                TestResource::Event(actions::e_GameLost::TEST_CLASS_HASH),
             ].span(),
         };
         ndef
