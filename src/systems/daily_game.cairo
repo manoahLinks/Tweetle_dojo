@@ -129,9 +129,9 @@ mod daily_game {
             assert(game.starts_at != 0, 'Game does not exist');
             assert(timestamp < game.expires_at, 'Game has expired');
 
-            // Check if player already joined (attempt count exists)
+            // Check if player already joined
             let existing_attempt: DailyAttemptCount = world.read_model((caller, game_id));
-            assert(existing_attempt.count == 0, 'Already joined this game');
+            assert(!existing_attempt.has_joined, 'Already joined this game');
 
             // Increment player count and add player to game
             game.players_count += 1;
@@ -148,6 +148,7 @@ mod daily_game {
                 player: caller,
                 game_id,
                 count: 0,
+                has_joined: true,
             };
 
             world.write_model(@game);
@@ -174,7 +175,7 @@ mod daily_game {
 
             // Read and validate attempt count
             let mut attempt_info: DailyAttemptCount = world.read_model((caller, game_id));
-            assert(attempt_info.count > 0 || attempt_info.count == 0, 'Must join game first');
+            assert(attempt_info.has_joined, 'Must join game first');
             assert(attempt_info.count < MAX_ATTEMPTS, 'Max attempts reached');
 
             // Validate the word

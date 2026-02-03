@@ -64,10 +64,10 @@ mod tests {
 
     #[test]
     fn test_daily_game_creation() {
-        let caller = starknet::contract_address_const::<0x1234>();
+        let caller: starknet::ContractAddress = 0x1234.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -101,10 +101,10 @@ mod tests {
 
     #[test]
     fn test_daily_game_join_flow() {
-        let caller = starknet::contract_address_const::<0x2345>();
+        let caller: starknet::ContractAddress = 0x2345.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -116,7 +116,7 @@ mod tests {
         // Register player
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('dailyplayer', starknet::contract_address_const::<0x0>());
+        player_system.register_player('dailyplayer', 0.try_into().unwrap());
 
         // Get or create daily game
         let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
@@ -142,10 +142,10 @@ mod tests {
 
     #[test]
     fn test_daily_game_complete_flow() {
-        let caller = starknet::contract_address_const::<0x3456>();
+        let caller: starknet::ContractAddress = 0x3456.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -157,7 +157,7 @@ mod tests {
         // Register player
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('flowplayer', starknet::contract_address_const::<0x0>());
+        player_system.register_player('flowplayer', 0.try_into().unwrap());
 
         // Get or create and join daily game
         let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
@@ -184,10 +184,10 @@ mod tests {
 
     #[test]
     fn test_daily_game_loss() {
-        let caller = starknet::contract_address_const::<0x4567>();
+        let caller: starknet::ContractAddress = 0x4567.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -199,7 +199,7 @@ mod tests {
         // Register player
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('loser', starknet::contract_address_const::<0x0>());
+        player_system.register_player('loser', 0.try_into().unwrap());
 
         // Get or create and join daily game
         let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
@@ -212,36 +212,36 @@ mod tests {
         let mut attempts_made = 0;
         
         // Submit guesses until we reach max attempts or win
-        daily_game_system.submit_daily_guess(game_id, 0x6369676172); // 'cigar'
+        daily_game_system.submit_daily_guess(game_id, 422726431348); 
         attempts_made += 1;
         
         let attempt_count: DailyAttemptCount = world.read_model((caller, game_id));
         if attempt_count.count < MAX_ATTEMPTS {
-            daily_game_system.submit_daily_guess(game_id, 0x6162616361); // 'abaca'
+            daily_game_system.submit_daily_guess(game_id, 422726431348); 
             attempts_made += 1;
         }
         
         let attempt_count: DailyAttemptCount = world.read_model((caller, game_id));
         if attempt_count.count < MAX_ATTEMPTS {
-            daily_game_system.submit_daily_guess(game_id, 0x616261636b); // 'aback'
+            daily_game_system.submit_daily_guess(game_id, 422726431348); 
             attempts_made += 1;
         }
         
         let attempt_count: DailyAttemptCount = world.read_model((caller, game_id));
         if attempt_count.count < MAX_ATTEMPTS {
-            daily_game_system.submit_daily_guess(game_id, 0x6162617365); // 'abase'
+            daily_game_system.submit_daily_guess(game_id, 422726431348); 
             attempts_made += 1;
         }
         
         let attempt_count: DailyAttemptCount = world.read_model((caller, game_id));
         if attempt_count.count < MAX_ATTEMPTS {
-            daily_game_system.submit_daily_guess(game_id, 0x6162617368); // 'abash'
+            daily_game_system.submit_daily_guess(game_id, 422726431348); 
             attempts_made += 1;
         }
         
         let attempt_count: DailyAttemptCount = world.read_model((caller, game_id));
         if attempt_count.count < MAX_ATTEMPTS {
-            daily_game_system.submit_daily_guess(game_id, 0x6162617465); // 'abate'
+            daily_game_system.submit_daily_guess(game_id, 422726431348); 
             attempts_made += 1;
         }
 
@@ -256,11 +256,11 @@ mod tests {
 
     #[test]
     fn test_daily_game_multiple_winners() {
-        let player1 = starknet::contract_address_const::<0x5678>();
-        let player2 = starknet::contract_address_const::<0x6789>();
+        let player1: starknet::ContractAddress = 0x5678.try_into().unwrap();
+        let player2: starknet::ContractAddress = 0x6789.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         let test_timestamp: u64 = 5000000;
@@ -275,14 +275,14 @@ mod tests {
         // Player 1 registers and joins
         starknet::testing::set_contract_address(player1);
         starknet::testing::set_account_contract_address(player1);
-        player_system.register_player('winner1', starknet::contract_address_const::<0x0>());
+        player_system.register_player('winner1', 0.try_into().unwrap());
         let game_id = daily_game_system.get_or_create_daily_game();
         daily_game_system.join_daily_game(game_id);
 
         // Player 2 registers and joins
         starknet::testing::set_contract_address(player2);
         starknet::testing::set_account_contract_address(player2);
-        player_system.register_player('winner2', starknet::contract_address_const::<0x0>());
+        player_system.register_player('winner2', 0.try_into().unwrap());
         daily_game_system.join_daily_game(game_id);
 
         // Get the target word for this game
@@ -309,10 +309,10 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Player not registered', 'ENTRYPOINT_FAILED'))]
     fn test_join_without_registration() {
-        let caller = starknet::contract_address_const::<0x7890>();
+        let caller: starknet::ContractAddress = 0x7890.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -331,10 +331,10 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Game does not exist', 'ENTRYPOINT_FAILED'))]
     fn test_join_nonexistent_game() {
-        let caller = starknet::contract_address_const::<0x8901>();
+        let caller: starknet::ContractAddress = 0x8901.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -346,7 +346,7 @@ mod tests {
         // Register player
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('testplayer', starknet::contract_address_const::<0x0>());
+        player_system.register_player('testplayer', 0.try_into().unwrap());
 
         // Try to join a game that doesn't exist
         let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
@@ -357,10 +357,10 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Already joined this game', 'ENTRYPOINT_FAILED'))]
     fn test_double_join() {
-        let caller = starknet::contract_address_const::<0x9012>();
+        let caller: starknet::ContractAddress = 0x9012.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -372,7 +372,7 @@ mod tests {
         // Register player
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('doublejoin', starknet::contract_address_const::<0x0>());
+        player_system.register_player('doublejoin', 0.try_into().unwrap());
 
         // Get or create and join daily game
         let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
@@ -387,10 +387,10 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Max attempts reached', 'ENTRYPOINT_FAILED'))]
     fn test_max_attempts_exceeded() {
-        let caller = starknet::contract_address_const::<0xABCD>();
+        let caller: starknet::ContractAddress = 0xABCD.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -402,7 +402,7 @@ mod tests {
         // Register player
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('maxattempts', starknet::contract_address_const::<0x0>());
+        player_system.register_player('maxattempts', 0.try_into().unwrap());
 
         // Get or create and join daily game
         let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
@@ -411,24 +411,24 @@ mod tests {
         daily_game_system.join_daily_game(game_id);
 
         // Submit 6 guesses
-        daily_game_system.submit_daily_guess(game_id, 0x6369676172); // 'cigar'
-        daily_game_system.submit_daily_guess(game_id, 0x6162616361); // 'abaca'
-        daily_game_system.submit_daily_guess(game_id, 0x616261636b); // 'aback'
-        daily_game_system.submit_daily_guess(game_id, 0x6162617365); // 'abase'
-        daily_game_system.submit_daily_guess(game_id, 0x6162617368); // 'abash'
-        daily_game_system.submit_daily_guess(game_id, 0x6162617465); // 'abate'
+        daily_game_system.submit_daily_guess(game_id, 422726431348); 
+        daily_game_system.submit_daily_guess(game_id, 422726431348); 
+        daily_game_system.submit_daily_guess(game_id, 422726431348); 
+        daily_game_system.submit_daily_guess(game_id, 422726431348); 
+        daily_game_system.submit_daily_guess(game_id, 422726431348); 
+        daily_game_system.submit_daily_guess(game_id, 422726431348); 
 
         // Try to submit 7th guess - should panic
-        daily_game_system.submit_daily_guess(game_id, 0x6162696465); // 'abide'
+        daily_game_system.submit_daily_guess(game_id, 422726431348); 
     }
 
     #[test]
     #[should_panic(expected: ('Invalid word', 'ENTRYPOINT_FAILED'))]
     fn test_invalid_word_guess() {
-        let caller = starknet::contract_address_const::<0xBCDE>();
+        let caller: starknet::ContractAddress = 0xBCDE.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -440,7 +440,7 @@ mod tests {
         // Register player
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('invalidword', starknet::contract_address_const::<0x0>());
+        player_system.register_player('invalidword', 0.try_into().unwrap());
 
         // Get or create and join daily game
         let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
@@ -459,10 +459,10 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Game has expired', 'ENTRYPOINT_FAILED'))]
     fn test_expired_game_join() {
-        let caller = starknet::contract_address_const::<0xCDEF>();
+        let caller: starknet::ContractAddress = 0xCDEF.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -474,7 +474,7 @@ mod tests {
         // Register player
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('expiredplayer', starknet::contract_address_const::<0x0>());
+        player_system.register_player('expiredplayer', 0.try_into().unwrap());
 
         // Create game
         let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
@@ -492,10 +492,10 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Game has expired', 'ENTRYPOINT_FAILED'))]
     fn test_expired_game_guess() {
-        let caller = starknet::contract_address_const::<0xDEF0>();
+        let caller: starknet::ContractAddress = 0xDEF0.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -507,7 +507,7 @@ mod tests {
         // Register player
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('expiredguess', starknet::contract_address_const::<0x0>());
+        player_system.register_player('expiredguess', 0.try_into().unwrap());
 
         // Create and join game
         let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
@@ -525,10 +525,10 @@ mod tests {
 
     #[test]
     fn test_same_day_returns_same_game() {
-        let caller = starknet::contract_address_const::<0xEF01>();
+        let caller: starknet::ContractAddress = 0xEF01.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);

@@ -54,10 +54,10 @@ mod tests {
 
     #[test]
     fn test_game_flow() {
-        let caller = starknet::contract_address_const::<0x1234>();
+        let caller: starknet::ContractAddress = 0x1234.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         // Set caller address AFTER world setup
@@ -69,7 +69,7 @@ mod tests {
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
         
         // Register player with username and no referrer
-        player_system.register_player('testuser', starknet::contract_address_const::<0x0>());
+        player_system.register_player('testuser', 0.try_into().unwrap());
 
         // Verify player registration
         let player: Player = world.read_model(caller);
@@ -109,10 +109,10 @@ mod tests {
 
     #[test]
     fn test_multiple_guesses() {
-        let caller = starknet::contract_address_const::<0x5678>();
+        let caller: starknet::ContractAddress = 0x5678.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -120,7 +120,7 @@ mod tests {
 
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('player2', starknet::contract_address_const::<0x0>());
+        player_system.register_player('player2', 0.try_into().unwrap());
 
         let (actions_addr, _) = world.dns(@"actions").unwrap();
         let actions = IActionsDispatcher { contract_address: actions_addr };
@@ -143,10 +143,10 @@ mod tests {
     #[test]
     #[should_panic(expected: ('Player already registered', 'ENTRYPOINT_FAILED'))]
     fn test_duplicate_registration() {
-        let caller = starknet::contract_address_const::<0x9999>();
+        let caller: starknet::ContractAddress = 0x9999.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
@@ -155,17 +155,17 @@ mod tests {
         let (player_addr, _) = world.dns(@"player_system").unwrap();
         let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
         
-        player_system.register_player('duplicate', starknet::contract_address_const::<0x0>());
-        player_system.register_player('duplicate2', starknet::contract_address_const::<0x0>());
+        player_system.register_player('duplicate', 0.try_into().unwrap());
+        player_system.register_player('duplicate2', 0.try_into().unwrap());
     }
 
     #[test]
     #[should_panic(expected: ('Player not registered', 'ENTRYPOINT_FAILED'))]
     fn test_start_game_without_registration() {
-        let caller = starknet::contract_address_const::<0xAAAA>();
+        let caller: starknet::ContractAddress = 0xAAAA.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         starknet::testing::set_contract_address(caller);
