@@ -30,12 +30,12 @@ mod tests {
     #[test]
     fn test_register_player() {
         // Setup
-        let caller = starknet::contract_address_const::<0x1234>();
+        let caller: starknet::ContractAddress = 0x1234.try_into().unwrap();
         let username: felt252 = 0xabcdef;
-        let referrer: ContractAddress = starknet::contract_address_const::<0x0>();
+        let referrer: ContractAddress = 0.try_into().unwrap();
         
         let ndef = namespace_def();
-        let mut world = spawn_test_world([ndef].span());
+        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
         world.sync_perms_and_inits(contract_defs());
 
         // Player system dispatcher
