@@ -15,4 +15,5 @@ pub mod models {
 
 pub mod tests {
     mod test_game;
+    mod test_daily_game;
 }

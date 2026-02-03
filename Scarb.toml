@@ -24,8 +24,15 @@ casm = true
 cairo_test = "=2.9.2"
 dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.2.2" }
 
+[tool.scarb]
+allow-prebuilt-plugins = ["dojo_cairo_macros"]
+
 
 [writers]
 "tweetle_dojo" = ["tweetle_dojo-actions", "tweetle_dojo-player_system"]
+
+[world]
+name = "tweetle_dojo"
+seed = "tweetle_dojo"
 
 [profile.sepolia]

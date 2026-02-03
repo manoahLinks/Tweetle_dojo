@@ -15,11 +15,14 @@ telegram = "https://t.me/dojoengine"
 [namespace]
 default = "tweetle_dojo"
 
+[lib_versions]
+"tweetle_dojo-word" = "0_0_1"
+
 [env]
 rpc_url = ""         # env: STARKNET_RPC_URL
 account_address = "" # env: DOJO_ACCOUNT_ADDRESS
 private_key = ""     # env: DOJO_PRIVATE_KEY
-# world_address = "<world address>"
+# world_address = ""
 
 [writers]
 "tweetle_dojo" = ["tweetle_dojo-actions"]

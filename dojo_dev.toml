@@ -15,6 +15,9 @@ telegram = "https://t.me/dojoengine"
 [namespace]
 default = "tweetle_dojo"
 
+[lib_versions]
+"wordle-word" = "0_0_1"
+
 [env]
 rpc_url = "http://localhost:5050/"
 # Default account for katana with seed = 0
