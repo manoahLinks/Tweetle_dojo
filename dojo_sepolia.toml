@@ -25,4 +25,4 @@ private_key = ""     # env: DOJO_PRIVATE_KEY
 # world_address = ""
 
 [writers]
-"tweetle_dojo" = ["tweetle_dojo-actions"]
+"tweetle_dojo" = ["tweetle_dojo-actions", "tweetle_dojo-player_system", "tweetle_dojo-daily_game"]

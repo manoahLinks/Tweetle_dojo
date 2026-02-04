@@ -1,0 +1,3606 @@
+{
+  "world": {
+    "class_hash": "0x613551abceb2b37073b1149bb862ea70cf029981ce1ca47e9dd7c7ab97cb65d",
+    "address": "0x26d5777eccca1861a23303ee0ba48c0e8349e849d0377a21c3801ef1d0f8cef",
+    "seed": "dojo_starter",
+    "name": "tweetle_dojo",
+    "entrypoints": [
+      "uuid",
+      "set_metadata",
+      "register_namespace",
+      "register_event",
+      "register_model",
+      "register_contract",
+      "register_external_contract",
+      "register_library",
+      "init_contract",
+      "upgrade_event",
+      "upgrade_model",
+      "upgrade_contract",
+      "upgrade_external_contract",
+      "emit_event",
+      "emit_events",
+      "set_entity",
+      "set_entities",
+      "delete_entity",
+      "delete_entities",
+      "grant_owner",
+      "revoke_owner",
+      "grant_writer",
+      "revoke_writer",
+      "upgrade"
+    ]
+  },
+  "contracts": [
+    {
+      "address": "0x6cf4da715e3b6b7cf0ca008498ac6aef23d11f9a11b3f2f1297e8583ca4ce28",
+      "class_hash": "0x7eef03d634d682492a44f4cc6cfd1b6ce61e2f13a8e44f3b1036b56a060887c",
+      "init_calldata": [],
+      "tag": "tweetle_dojo-actions",
+      "selector": "0x4d4be89df67278eb302460a60a43d4de8cc152d447e0ca6fe49b37944ac69a8",
+      "systems": [
+        "start_game",
+        "submit_guess",
+        "upgrade"
+      ]
+    },
+    {
+      "address": "0x26d84b087e28590c437cbafe17c5589c9f1899a5ba1563e4dfb5728715df4a6",
+      "class_hash": "0x12c97eca5872fdad5965e95336721bad116875fe2c9efcda25c655f5928ca14",
+      "init_calldata": [],
+      "tag": "tweetle_dojo-daily_game",
+      "selector": "0x29c9d0133d220ca5f6fb759e9f8d5097048f280e5baff14862c6a96c09a2bc1",
+      "systems": [
+        "get_or_create_daily_game",
+        "join_daily_game",
+        "submit_daily_guess",
+        "upgrade"
+      ]
+    },
+    {
+      "address": "0x4dbc80f9b67d85b14e4d4b985a6f8c65a64ed1ade7b0d5fdf794a3f3047f3a7",
+      "class_hash": "0x6a80f453b1b6852c5c7b36cc669efc1c3fdfb68ca5c8b4e145dda42e5bf4222",
+      "init_calldata": [],
+      "tag": "tweetle_dojo-player_system",
+      "selector": "0x5a8f02faa7e2f1fdf3788cb952b2592b79d1930240a758019050d8dbcaf712c",
+      "systems": [
+        "register_player",
+        "upgrade"
+      ]
+    }
+  ],
+  "libraries": [],
+  "models": [
+    {
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8",
+          "key": true
+        },
+        {
+          "name": "word",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16",
+          "key": false
+        }
+      ],
+      "class_hash": "0x135f9ed883f6f398d0a08674bdd44aaa2ca982f840519fce11064a6df35ec55",
+      "tag": "tweetle_dojo-ClassicAttempt",
+      "selector": "0x75de766e8f83ab0d3afab7a814bfe54033f006fca33066a47b025c2a31a18c1"
+    },
+    {
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "active_players",
+          "type": "core::integer::u256",
+          "key": false
+        },
+        {
+          "name": "starts_at",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "expires_at",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "word_index",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "has_ended",
+          "type": "core::bool",
+          "key": false
+        }
+      ],
+      "class_hash": "0xca9cb0b71831bdcb42a1baf18edb68f8017e857d3f58f1daf3c02f5a83c9ed",
+      "tag": "tweetle_dojo-ClassicGame",
+      "selector": "0x647620a84d44122a266fb5b2f19b9a5847e4b40679cb2213d4444872aecf245"
+    },
+    {
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "count",
+          "type": "core::integer::u8",
+          "key": false
+        }
+      ],
+      "class_hash": "0x9082222ff2ae621a0deac162ec00f067cc4f9f42bb53c7158ef9dd680d23bc",
+      "tag": "tweetle_dojo-ClassicGameAttemptCount",
+      "selector": "0x727bced4519251f1aa4dbf111ae4dc79bd145ec786b5ee2c605412296166f18"
+    },
+    {
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8",
+          "key": true
+        },
+        {
+          "name": "word",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16",
+          "key": false
+        }
+      ],
+      "class_hash": "0x69edc8f3b356e2c8b05c269ca10a6432cb2f17da3cccf0d82ed40d5d255d1e",
+      "tag": "tweetle_dojo-DailyAttempt",
+      "selector": "0x55c63e589eda56693e14ad4111115726bf3f871e2d97df38ed6c2395bcbee48"
+    },
+    {
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "count",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "has_joined",
+          "type": "core::bool",
+          "key": false
+        }
+      ],
+      "class_hash": "0x37a5f03be3b8c7e7b405328245901c372b0c47f0e307bf6d2e99e621691f6d",
+      "tag": "tweetle_dojo-DailyAttemptCount",
+      "selector": "0x27e54e86ae07274e2603b0ce7d3a3f16b76cb82dbe6ef419290d340c64e005"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "word_index",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "starts_at",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "expires_at",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "winners_count",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "players_count",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x3d29358f331d7a779b0f2ac227883afc8e1aef30c19857a635409cd2cd89397",
+      "tag": "tweetle_dojo-DailyGame",
+      "selector": "0x5f4236475b5d7d5a53b9013bf9a68b2ef15a838b41433ba80fecf5408675456"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player_index",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x2dc030ac70a5df2505d0e8764b0c4d2503999eaf0115d699fed4f52e095ab8d",
+      "tag": "tweetle_dojo-DailyPlayer",
+      "selector": "0x1087428ac72639e0b9bacddcd72007d51ed17405aae71e9b4fea03a1f70b83c"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "winner_index",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x6e4a780c1639e94ff4033534e157ae32888db96fa2b8d738ad92441dfb69d15",
+      "tag": "tweetle_dojo-DailyWinner",
+      "selector": "0x6c16959ce5a541aa2dc61f91b92495c96de23d8f6a423132b4e1972d651a62c"
+    },
+    {
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u8",
+          "key": true
+        },
+        {
+          "name": "player_count",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "daily_games_count",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "next_daily_update",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "attempt_price",
+          "type": "core::integer::u256",
+          "key": false
+        },
+        {
+          "name": "daily_instructor",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "token_address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x59e225bc22940a4b766b932c4d0b9390e983f14207d1983a13f7128a6cc8698",
+      "tag": "tweetle_dojo-GameStats",
+      "selector": "0x1cf7bfa071393a46cddfafbfe7e06ef6150809a1cbd4c7a12293b837cd38fdc"
+    },
+    {
+      "members": [
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "username",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "classic_game_count",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "points",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "is_registered",
+          "type": "core::bool",
+          "key": false
+        },
+        {
+          "name": "referrer",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "friends_count",
+          "type": "core::integer::u256",
+          "key": false
+        }
+      ],
+      "class_hash": "0x36d851f40ad19e2cf47e8104c1e460d810a2d62aac276ad43a632a357547273",
+      "tag": "tweetle_dojo-Player",
+      "selector": "0x5c1e7485fa96fa9c00bb7ff51618715a5b78e8e0bab200412313826821898a5"
+    },
+    {
+      "members": [
+        {
+          "name": "referrer",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "friend_index",
+          "type": "core::integer::u256",
+          "key": true
+        },
+        {
+          "name": "friend_address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x666fe0f325b63c49a7ab5efcf15e0151327dc53ce4810d955ab80e890d0ff95",
+      "tag": "tweetle_dojo-PlayerFriend",
+      "selector": "0x3e06279a1d24065b86e46c14aa53a9e3232dd5673ba857756374d786f64569e"
+    },
+    {
+      "members": [
+        {
+          "name": "username",
+          "type": "core::felt252",
+          "key": true
+        },
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x10d9d6f5058ad327b3b06d30c209c7610a7bf6e9f9106bdf8499b3669704d73",
+      "tag": "tweetle_dojo-PlayerUsername",
+      "selector": "0x3486dbe329a76e6e26c53610a9f244e0157c3ed7b209aa4012f0904e0a7059b"
+    }
+  ],
+  "events": [
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "starts_at",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "expires_at",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x438e6b920572c3b58b99332e3965fa6b08539c4c42c0184d8071d17603855ff",
+      "tag": "tweetle_dojo-DailyGameCreated",
+      "selector": "0x4a15ae64ca59d35fc9a15b40418a29f3cc8774a16c6a6a2ff7518d943bac64c"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x71d15dc1b685177b1ed143dfdc871db8467c109be5cafd3d6428410dfb31468",
+      "tag": "tweetle_dojo-DailyGameLost",
+      "selector": "0x6af5a0b82ce27a35e4dade17172d1b51cc95bec5d34f2757e4a70815de7cafb"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "attempts",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "points_earned",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "winner_index",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x2146c70009cd408ae69424ab33ba81bfe516d8874049e327d126b9ddf657c19",
+      "tag": "tweetle_dojo-DailyGameWon",
+      "selector": "0x668c7c265488886d747b7c1922f733f1f584c7ca3fc49135a87f2ad835fb1c9"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "word",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16",
+          "key": false
+        }
+      ],
+      "class_hash": "0x71b15fd66da33b40ca45dbf769345c6b9d4a9db041896045b89eda3355d4906",
+      "tag": "tweetle_dojo-DailyGuessSubmitted",
+      "selector": "0x12dc8c961cd3715a514edb3ae800bbff29b75ca5aee086b3c00318f3f36502e"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x194f842cea28ed938f34895cfe79504bd115729cdb61aacb156b66a45105454",
+      "tag": "tweetle_dojo-GameLost",
+      "selector": "0x562881f2da73a85b283a91ae915a32761f149aa9390b4425cf606aaada79926"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0x60ed6f9048b0891afcbf14cb5a7764be875f80eea7f65ac6a0307277503afc3",
+      "tag": "tweetle_dojo-GameStarted",
+      "selector": "0x1aa3861e09960b7e9052afd5e735636380f53ebbb5cf5d4cb732f92956ebe96"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "attempts",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "points_earned",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x53fdacfe65a8bd4a303799cc9df086758e1299eb06350c635475046ea2c4dd4",
+      "tag": "tweetle_dojo-GameWon",
+      "selector": "0x27c25eaaf5884ef12889289ca5c11be36520041c99fae01aaed53d009eaa26b"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "word",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16",
+          "key": false
+        }
+      ],
+      "class_hash": "0x7b3f3645573802a8d7675131e8378c0bf15d807c04e81f2291a126f0af5a237",
+      "tag": "tweetle_dojo-GuessSubmitted",
+      "selector": "0x98b2824d5b8f84b5ab2040e01e3c3c5666316793bcd0aa224cd20fa4b93a9b"
+    },
+    {
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "player_index",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x787672ed46c4ade8d216faff9808b50218c853c8bfcc75105bc550714844922",
+      "tag": "tweetle_dojo-PlayerJoinedDaily",
+      "selector": "0x5bffc76b60ce37763c1f2fd024b4d1cefff47be60a9ae6c96122b8750009cd7"
+    }
+  ],
+  "external_contracts": [],
+  "abis": [
+    {
+      "type": "constructor",
+      "name": "constructor",
+      "inputs": []
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<(core::felt252, dojo::meta::introspect::Ty)>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<(core::felt252, dojo::meta::introspect::Ty)>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<core::array::Span::<core::felt252>>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<core::array::Span::<core::felt252>>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<core::felt252>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<core::felt252>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<core::integer::u8>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<core::integer::u8>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<dojo::meta::introspect::Member>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<dojo::meta::introspect::Member>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<dojo::meta::introspect::Ty>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<dojo::meta::introspect::Ty>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<dojo::meta::layout::FieldLayout>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<dojo::meta::layout::FieldLayout>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<dojo::meta::layout::Layout>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<dojo::meta::layout::Layout>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<dojo::model::definition::ModelIndex>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<dojo::model::definition::ModelIndex>"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "core::bool",
+      "variants": [
+        {
+          "name": "False",
+          "type": "()"
+        },
+        {
+          "name": "True",
+          "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::byte_array::ByteArray",
+      "members": [
+        {
+          "name": "data",
+          "type": "core::array::Array::<core::bytes_31::bytes31>"
+        },
+        {
+          "name": "pending_word",
+          "type": "core::felt252"
+        },
+        {
+          "name": "pending_word_len",
+          "type": "core::internal::bounded_int::BoundedInt::<0, 30>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::integer::u256",
+      "members": [
+        {
+          "name": "low",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "high",
+          "type": "core::integer::u128"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "core::option::Option::<core::integer::u32>",
+      "variants": [
+        {
+          "name": "Some",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "None",
+          "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "dojo::contract::components::upgradeable::IUpgradeable",
+      "items": [
+        {
+          "type": "function",
+          "name": "upgrade",
+          "inputs": [
+            {
+              "name": "new_class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "Upgraded",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "dojo::contract::components::world_provider::IWorldProvider",
+      "items": [
+        {
+          "type": "function",
+          "name": "world_dispatcher",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "dojo::world::iworld::IWorldDispatcher"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "interface",
+      "name": "dojo::contract::interface::IContract",
+      "items": []
+    },
+    {
+      "type": "struct",
+      "name": "dojo::event::event::EventDef",
+      "members": [
+        {
+          "name": "name",
+          "type": "core::byte_array::ByteArray"
+        },
+        {
+          "name": "layout",
+          "type": "dojo::meta::layout::Layout"
+        },
+        {
+          "name": "schema",
+          "type": "dojo::meta::introspect::Struct"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "dojo::event::interface::IEvent",
+      "items": [
+        {
+          "type": "function",
+          "name": "definition",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "dojo::event::event::EventDef"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "dojo::meta::interface::IDeployedResource",
+      "items": [
+        {
+          "type": "function",
+          "name": "dojo_name",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::byte_array::ByteArray"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "dojo::meta::interface::IStoredResource",
+      "items": [
+        {
+          "type": "function",
+          "name": "layout",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "dojo::meta::layout::Layout"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "schema",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "dojo::meta::introspect::Struct"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "dojo::meta::introspect::Enum",
+      "members": [
+        {
+          "name": "name",
+          "type": "core::felt252"
+        },
+        {
+          "name": "attrs",
+          "type": "core::array::Span::<core::felt252>"
+        },
+        {
+          "name": "children",
+          "type": "core::array::Span::<(core::felt252, dojo::meta::introspect::Ty)>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "dojo::meta::introspect::Member",
+      "members": [
+        {
+          "name": "name",
+          "type": "core::felt252"
+        },
+        {
+          "name": "attrs",
+          "type": "core::array::Span::<core::felt252>"
+        },
+        {
+          "name": "ty",
+          "type": "dojo::meta::introspect::Ty"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "dojo::meta::introspect::Struct",
+      "members": [
+        {
+          "name": "name",
+          "type": "core::felt252"
+        },
+        {
+          "name": "attrs",
+          "type": "core::array::Span::<core::felt252>"
+        },
+        {
+          "name": "children",
+          "type": "core::array::Span::<dojo::meta::introspect::Member>"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "dojo::meta::introspect::Ty",
+      "variants": [
+        {
+          "name": "Primitive",
+          "type": "core::felt252"
+        },
+        {
+          "name": "Struct",
+          "type": "dojo::meta::introspect::Struct"
+        },
+        {
+          "name": "Enum",
+          "type": "dojo::meta::introspect::Enum"
+        },
+        {
+          "name": "Tuple",
+          "type": "core::array::Span::<dojo::meta::introspect::Ty>"
+        },
+        {
+          "name": "Array",
+          "type": "core::array::Span::<dojo::meta::introspect::Ty>"
+        },
+        {
+          "name": "ByteArray",
+          "type": "()"
+        },
+        {
+          "name": "FixedArray",
+          "type": "(core::array::Span::<dojo::meta::introspect::Ty>, core::integer::u32)"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "dojo::meta::layout::FieldLayout",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252"
+        },
+        {
+          "name": "layout",
+          "type": "dojo::meta::layout::Layout"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "dojo::meta::layout::Layout",
+      "variants": [
+        {
+          "name": "Fixed",
+          "type": "core::array::Span::<core::integer::u8>"
+        },
+        {
+          "name": "Struct",
+          "type": "core::array::Span::<dojo::meta::layout::FieldLayout>"
+        },
+        {
+          "name": "Tuple",
+          "type": "core::array::Span::<dojo::meta::layout::Layout>"
+        },
+        {
+          "name": "Array",
+          "type": "core::array::Span::<dojo::meta::layout::Layout>"
+        },
+        {
+          "name": "ByteArray",
+          "type": "()"
+        },
+        {
+          "name": "Enum",
+          "type": "core::array::Span::<dojo::meta::layout::FieldLayout>"
+        },
+        {
+          "name": "FixedArray",
+          "type": "(core::array::Span::<dojo::meta::layout::Layout>, core::integer::u32)"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "dojo::model::definition::ModelDef",
+      "members": [
+        {
+          "name": "name",
+          "type": "core::byte_array::ByteArray"
+        },
+        {
+          "name": "layout",
+          "type": "dojo::meta::layout::Layout"
+        },
+        {
+          "name": "schema",
+          "type": "dojo::meta::introspect::Struct"
+        },
+        {
+          "name": "packed_size",
+          "type": "core::option::Option::<core::integer::u32>"
+        },
+        {
+          "name": "unpacked_size",
+          "type": "core::option::Option::<core::integer::u32>"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "dojo::model::definition::ModelIndex",
+      "variants": [
+        {
+          "name": "Keys",
+          "type": "core::array::Span::<core::felt252>"
+        },
+        {
+          "name": "Id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "MemberId",
+          "type": "(core::felt252, core::felt252)"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "dojo::model::interface::IModel",
+      "items": [
+        {
+          "type": "function",
+          "name": "unpacked_size",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::option::Option::<core::integer::u32>"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "packed_size",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::option::Option::<core::integer::u32>"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "definition",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "dojo::model::definition::ModelDef"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "use_legacy_storage",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "dojo::model::metadata::ResourceMetadata",
+      "members": [
+        {
+          "name": "resource_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "metadata_uri",
+          "type": "core::byte_array::ByteArray"
+        },
+        {
+          "name": "metadata_hash",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "dojo::world::iworld::IUpgradeableWorld",
+      "items": [
+        {
+          "type": "function",
+          "name": "upgrade",
+          "inputs": [
+            {
+              "name": "new_class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "dojo::world::iworld::IWorld",
+      "items": [
+        {
+          "type": "function",
+          "name": "resource",
+          "inputs": [
+            {
+              "name": "selector",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "dojo::world::resource::Resource"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "world_version",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "uuid",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u32"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "metadata",
+          "inputs": [
+            {
+              "name": "resource_selector",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "dojo::model::metadata::ResourceMetadata"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "set_metadata",
+          "inputs": [
+            {
+              "name": "metadata",
+              "type": "dojo::model::metadata::ResourceMetadata"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "register_namespace",
+          "inputs": [
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "register_event",
+          "inputs": [
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "register_model",
+          "inputs": [
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "register_contract",
+          "inputs": [
+            {
+              "name": "salt",
+              "type": "core::felt252"
+            },
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "register_external_contract",
+          "inputs": [
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "contract_name",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "instance_name",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "contract_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "block_number",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "register_library",
+          "inputs": [
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            },
+            {
+              "name": "name",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "version",
+              "type": "core::byte_array::ByteArray"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "init_contract",
+          "inputs": [
+            {
+              "name": "selector",
+              "type": "core::felt252"
+            },
+            {
+              "name": "init_calldata",
+              "type": "core::array::Span::<core::felt252>"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "upgrade_event",
+          "inputs": [
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "upgrade_model",
+          "inputs": [
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "upgrade_contract",
+          "inputs": [
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "upgrade_external_contract",
+          "inputs": [
+            {
+              "name": "namespace",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "instance_name",
+              "type": "core::byte_array::ByteArray"
+            },
+            {
+              "name": "contract_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "block_number",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "emit_event",
+          "inputs": [
+            {
+              "name": "event_selector",
+              "type": "core::felt252"
+            },
+            {
+              "name": "keys",
+              "type": "core::array::Span::<core::felt252>"
+            },
+            {
+              "name": "values",
+              "type": "core::array::Span::<core::felt252>"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "emit_events",
+          "inputs": [
+            {
+              "name": "event_selector",
+              "type": "core::felt252"
+            },
+            {
+              "name": "keys",
+              "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+            },
+            {
+              "name": "values",
+              "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "entity",
+          "inputs": [
+            {
+              "name": "model_selector",
+              "type": "core::felt252"
+            },
+            {
+              "name": "index",
+              "type": "dojo::model::definition::ModelIndex"
+            },
+            {
+              "name": "layout",
+              "type": "dojo::meta::layout::Layout"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::array::Span::<core::felt252>"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "entities",
+          "inputs": [
+            {
+              "name": "model_selector",
+              "type": "core::felt252"
+            },
+            {
+              "name": "indexes",
+              "type": "core::array::Span::<dojo::model::definition::ModelIndex>"
+            },
+            {
+              "name": "layout",
+              "type": "dojo::meta::layout::Layout"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "set_entity",
+          "inputs": [
+            {
+              "name": "model_selector",
+              "type": "core::felt252"
+            },
+            {
+              "name": "index",
+              "type": "dojo::model::definition::ModelIndex"
+            },
+            {
+              "name": "values",
+              "type": "core::array::Span::<core::felt252>"
+            },
+            {
+              "name": "layout",
+              "type": "dojo::meta::layout::Layout"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "set_entities",
+          "inputs": [
+            {
+              "name": "model_selector",
+              "type": "core::felt252"
+            },
+            {
+              "name": "indexes",
+              "type": "core::array::Span::<dojo::model::definition::ModelIndex>"
+            },
+            {
+              "name": "values",
+              "type": "core::array::Span::<core::array::Span::<core::felt252>>"
+            },
+            {
+              "name": "layout",
+              "type": "dojo::meta::layout::Layout"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "delete_entity",
+          "inputs": [
+            {
+              "name": "model_selector",
+              "type": "core::felt252"
+            },
+            {
+              "name": "index",
+              "type": "dojo::model::definition::ModelIndex"
+            },
+            {
+              "name": "layout",
+              "type": "dojo::meta::layout::Layout"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "delete_entities",
+          "inputs": [
+            {
+              "name": "model_selector",
+              "type": "core::felt252"
+            },
+            {
+              "name": "indexes",
+              "type": "core::array::Span::<dojo::model::definition::ModelIndex>"
+            },
+            {
+              "name": "layout",
+              "type": "dojo::meta::layout::Layout"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "is_owner",
+          "inputs": [
+            {
+              "name": "resource",
+              "type": "core::felt252"
+            },
+            {
+              "name": "address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "grant_owner",
+          "inputs": [
+            {
+              "name": "resource",
+              "type": "core::felt252"
+            },
+            {
+              "name": "address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "revoke_owner",
+          "inputs": [
+            {
+              "name": "resource",
+              "type": "core::felt252"
+            },
+            {
+              "name": "address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "owners_count",
+          "inputs": [
+            {
+              "name": "resource",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "is_writer",
+          "inputs": [
+            {
+              "name": "resource",
+              "type": "core::felt252"
+            },
+            {
+              "name": "contract",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "grant_writer",
+          "inputs": [
+            {
+              "name": "resource",
+              "type": "core::felt252"
+            },
+            {
+              "name": "contract",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "revoke_writer",
+          "inputs": [
+            {
+              "name": "resource",
+              "type": "core::felt252"
+            },
+            {
+              "name": "contract",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "dojo::world::iworld::IWorldDispatcher",
+      "members": [
+        {
+          "name": "contract_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "dojo::world::resource::Resource",
+      "variants": [
+        {
+          "name": "Model",
+          "type": "(core::starknet::contract_address::ContractAddress, core::felt252)"
+        },
+        {
+          "name": "Event",
+          "type": "(core::starknet::contract_address::ContractAddress, core::felt252)"
+        },
+        {
+          "name": "Contract",
+          "type": "(core::starknet::contract_address::ContractAddress, core::felt252)"
+        },
+        {
+          "name": "Namespace",
+          "type": "core::byte_array::ByteArray"
+        },
+        {
+          "name": "World",
+          "type": "()"
+        },
+        {
+          "name": "Unregistered",
+          "type": "()"
+        },
+        {
+          "name": "Library",
+          "type": "(core::starknet::class_hash::ClassHash, core::felt252)"
+        },
+        {
+          "name": "ExternalContract",
+          "type": "(core::starknet::contract_address::ContractAddress, core::felt252)"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::ContractInitialized",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "init_calldata",
+          "type": "core::array::Span::<core::felt252>",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::ContractRegistered",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "name",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "namespace",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        },
+        {
+          "name": "salt",
+          "type": "core::felt252",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::ContractUpgraded",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "WorldSpawned",
+          "type": "dojo::world::world_contract::world::WorldSpawned",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldUpgraded",
+          "type": "dojo::world::world_contract::world::WorldUpgraded",
+          "kind": "nested"
+        },
+        {
+          "name": "NamespaceRegistered",
+          "type": "dojo::world::world_contract::world::NamespaceRegistered",
+          "kind": "nested"
+        },
+        {
+          "name": "ModelRegistered",
+          "type": "dojo::world::world_contract::world::ModelRegistered",
+          "kind": "nested"
+        },
+        {
+          "name": "EventRegistered",
+          "type": "dojo::world::world_contract::world::EventRegistered",
+          "kind": "nested"
+        },
+        {
+          "name": "ContractRegistered",
+          "type": "dojo::world::world_contract::world::ContractRegistered",
+          "kind": "nested"
+        },
+        {
+          "name": "ExternalContractRegistered",
+          "type": "dojo::world::world_contract::world::ExternalContractRegistered",
+          "kind": "nested"
+        },
+        {
+          "name": "ExternalContractUpgraded",
+          "type": "dojo::world::world_contract::world::ExternalContractUpgraded",
+          "kind": "nested"
+        },
+        {
+          "name": "ModelUpgraded",
+          "type": "dojo::world::world_contract::world::ModelUpgraded",
+          "kind": "nested"
+        },
+        {
+          "name": "EventUpgraded",
+          "type": "dojo::world::world_contract::world::EventUpgraded",
+          "kind": "nested"
+        },
+        {
+          "name": "ContractUpgraded",
+          "type": "dojo::world::world_contract::world::ContractUpgraded",
+          "kind": "nested"
+        },
+        {
+          "name": "ContractInitialized",
+          "type": "dojo::world::world_contract::world::ContractInitialized",
+          "kind": "nested"
+        },
+        {
+          "name": "LibraryRegistered",
+          "type": "dojo::world::world_contract::world::LibraryRegistered",
+          "kind": "nested"
+        },
+        {
+          "name": "EventEmitted",
+          "type": "dojo::world::world_contract::world::EventEmitted",
+          "kind": "nested"
+        },
+        {
+          "name": "MetadataUpdate",
+          "type": "dojo::world::world_contract::world::MetadataUpdate",
+          "kind": "nested"
+        },
+        {
+          "name": "StoreSetRecord",
+          "type": "dojo::world::world_contract::world::StoreSetRecord",
+          "kind": "nested"
+        },
+        {
+          "name": "StoreUpdateRecord",
+          "type": "dojo::world::world_contract::world::StoreUpdateRecord",
+          "kind": "nested"
+        },
+        {
+          "name": "StoreUpdateMember",
+          "type": "dojo::world::world_contract::world::StoreUpdateMember",
+          "kind": "nested"
+        },
+        {
+          "name": "StoreDelRecord",
+          "type": "dojo::world::world_contract::world::StoreDelRecord",
+          "kind": "nested"
+        },
+        {
+          "name": "WriterUpdated",
+          "type": "dojo::world::world_contract::world::WriterUpdated",
+          "kind": "nested"
+        },
+        {
+          "name": "OwnerUpdated",
+          "type": "dojo::world::world_contract::world::OwnerUpdated",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::EventEmitted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "system_address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "keys",
+          "type": "core::array::Span::<core::felt252>",
+          "kind": "data"
+        },
+        {
+          "name": "values",
+          "type": "core::array::Span::<core::felt252>",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::EventRegistered",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "name",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "namespace",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        },
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::EventUpgraded",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        },
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "prev_address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::ExternalContractRegistered",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "namespace",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "contract_name",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "instance_name",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "contract_selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        },
+        {
+          "name": "contract_address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "block_number",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::ExternalContractUpgraded",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "namespace",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "instance_name",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "contract_selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        },
+        {
+          "name": "contract_address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "block_number",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::LibraryRegistered",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "name",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "namespace",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::MetadataUpdate",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "resource",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "uri",
+          "type": "core::byte_array::ByteArray",
+          "kind": "data"
+        },
+        {
+          "name": "hash",
+          "type": "core::felt252",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::ModelRegistered",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "name",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "namespace",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        },
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::ModelUpgraded",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        },
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "prev_address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::NamespaceRegistered",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "namespace",
+          "type": "core::byte_array::ByteArray",
+          "kind": "key"
+        },
+        {
+          "name": "hash",
+          "type": "core::felt252",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::OwnerUpdated",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "resource",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "contract",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "value",
+          "type": "core::bool",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::StoreDelRecord",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "entity_id",
+          "type": "core::felt252",
+          "kind": "key"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::StoreSetRecord",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "entity_id",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "keys",
+          "type": "core::array::Span::<core::felt252>",
+          "kind": "data"
+        },
+        {
+          "name": "values",
+          "type": "core::array::Span::<core::felt252>",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::StoreUpdateMember",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "entity_id",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "member_selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "values",
+          "type": "core::array::Span::<core::felt252>",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::StoreUpdateRecord",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "selector",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "entity_id",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "values",
+          "type": "core::array::Span::<core::felt252>",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::WorldSpawned",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "creator",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::WorldUpgraded",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "dojo::world::world_contract::world::WriterUpdated",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "resource",
+          "type": "core::felt252",
+          "kind": "key"
+        },
+        {
+          "name": "contract",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "value",
+          "type": "core::bool",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "dojo_init",
+      "inputs": [],
+      "outputs": [],
+      "state_mutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ensure_abi",
+      "inputs": [
+        {
+          "name": "event",
+          "type": "tweetle_dojo::systems::daily_game::daily_game::PlayerJoinedDaily"
+        }
+      ],
+      "outputs": [],
+      "state_mutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ensure_unique",
+      "inputs": [],
+      "outputs": [],
+      "state_mutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ensure_values",
+      "inputs": [
+        {
+          "name": "value",
+          "type": "tweetle_dojo::systems::daily_game::daily_game::PlayerJoinedDailyValue"
+        }
+      ],
+      "outputs": [],
+      "state_mutability": "view"
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::attempt::ClassicAttempt",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "word",
+          "type": "core::felt252"
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::attempt::ClassicAttemptValue",
+      "members": [
+        {
+          "name": "word",
+          "type": "core::felt252"
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::attempt::DailyAttempt",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "word",
+          "type": "core::felt252"
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::attempt::DailyAttemptCount",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "count",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "has_joined",
+          "type": "core::bool"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::attempt::DailyAttemptCountValue",
+      "members": [
+        {
+          "name": "count",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "has_joined",
+          "type": "core::bool"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::attempt::DailyAttemptValue",
+      "members": [
+        {
+          "name": "word",
+          "type": "core::felt252"
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::attempt::m_ClassicAttempt::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::attempt::m_DailyAttempt::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::attempt::m_DailyAttemptCount::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::daily_game::DailyGame",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "word_index",
+          "type": "core::felt252"
+        },
+        {
+          "name": "starts_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "expires_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "winners_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "players_count",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::daily_game::DailyGameValue",
+      "members": [
+        {
+          "name": "word_index",
+          "type": "core::felt252"
+        },
+        {
+          "name": "starts_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "expires_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "winners_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "players_count",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::daily_game::DailyPlayer",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player_index",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::daily_game::DailyPlayerValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::daily_game::DailyWinner",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "winner_index",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::daily_game::DailyWinnerValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::daily_game::m_DailyGame::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::daily_game::m_DailyPlayer::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::daily_game::m_DailyWinner::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::game::ClassicGame",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "active_players",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "starts_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "expires_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "word_index",
+          "type": "core::felt252"
+        },
+        {
+          "name": "has_ended",
+          "type": "core::bool"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::game::ClassicGameAttemptCount",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "count",
+          "type": "core::integer::u8"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::game::ClassicGameAttemptCountValue",
+      "members": [
+        {
+          "name": "count",
+          "type": "core::integer::u8"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::game::ClassicGameValue",
+      "members": [
+        {
+          "name": "active_players",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "starts_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "expires_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "word_index",
+          "type": "core::felt252"
+        },
+        {
+          "name": "has_ended",
+          "type": "core::bool"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::game::m_ClassicGame::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::game::m_ClassicGameAttemptCount::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::game_stats::GameStats",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "player_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "daily_games_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "next_daily_update",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "attempt_price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "daily_instructor",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "token_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::game_stats::GameStatsValue",
+      "members": [
+        {
+          "name": "player_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "daily_games_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "next_daily_update",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "attempt_price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "daily_instructor",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "token_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::game_stats::m_GameStats::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::player::Player",
+      "members": [
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "username",
+          "type": "core::felt252"
+        },
+        {
+          "name": "classic_game_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "points",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "is_registered",
+          "type": "core::bool"
+        },
+        {
+          "name": "referrer",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "friends_count",
+          "type": "core::integer::u256"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::player::PlayerFriend",
+      "members": [
+        {
+          "name": "referrer",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "friend_index",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "friend_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::player::PlayerFriendValue",
+      "members": [
+        {
+          "name": "friend_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::player::PlayerUsername",
+      "members": [
+        {
+          "name": "username",
+          "type": "core::felt252"
+        },
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::player::PlayerUsernameValue",
+      "members": [
+        {
+          "name": "address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::player::PlayerValue",
+      "members": [
+        {
+          "name": "username",
+          "type": "core::felt252"
+        },
+        {
+          "name": "classic_game_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "points",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "is_registered",
+          "type": "core::bool"
+        },
+        {
+          "name": "referrer",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "friends_count",
+          "type": "core::integer::u256"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::player::m_Player::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::player::m_PlayerFriend::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::player::m_PlayerUsername::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "interface",
+      "name": "tweetle_dojo::systems::actions::IActions",
+      "items": [
+        {
+          "type": "function",
+          "name": "start_game",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "submit_guess",
+          "inputs": [
+            {
+              "name": "game_id",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "guess",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::actions::actions::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::actions::actions::GameLost",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::actions::actions::GameLostValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::actions::actions::GameStarted",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::actions::actions::GameStartedValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::actions::actions::GameWon",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempts",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "points_earned",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::actions::actions::GameWonValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempts",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "points_earned",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::actions::actions::GuessSubmitted",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "word",
+          "type": "core::felt252"
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::actions::actions::GuessSubmittedValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "word",
+          "type": "core::felt252"
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::actions::actions::e_GameLost::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::actions::actions::e_GameStarted::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::actions::actions::e_GameWon::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::actions::actions::e_GuessSubmitted::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "interface",
+      "name": "tweetle_dojo::systems::daily_game::IDailyGame",
+      "items": [
+        {
+          "type": "function",
+          "name": "get_or_create_daily_game",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "join_daily_game",
+          "inputs": [
+            {
+              "name": "game_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "submit_daily_guess",
+          "inputs": [
+            {
+              "name": "game_id",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "guess",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::DailyGameCreated",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "starts_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "expires_at",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::DailyGameCreatedValue",
+      "members": [
+        {
+          "name": "starts_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "expires_at",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::DailyGameLost",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::DailyGameLostValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::DailyGameWon",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempts",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "points_earned",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "winner_index",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::DailyGameWonValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempts",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "points_earned",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "winner_index",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::DailyGuessSubmitted",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "word",
+          "type": "core::felt252"
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::DailyGuessSubmittedValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "word",
+          "type": "core::felt252"
+        },
+        {
+          "name": "hint_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::PlayerJoinedDaily",
+      "members": [
+        {
+          "name": "game_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "player_index",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::PlayerJoinedDailyValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "player_index",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::e_DailyGameCreated::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::e_DailyGameLost::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::e_DailyGameWon::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::e_DailyGuessSubmitted::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::daily_game::daily_game::e_PlayerJoinedDaily::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "interface",
+      "name": "tweetle_dojo::systems::player_system::IPlayerActions",
+      "items": [
+        {
+          "type": "function",
+          "name": "register_player",
+          "inputs": [
+            {
+              "name": "username",
+              "type": "core::felt252"
+            },
+            {
+              "name": "referrer",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::player_system::player_system::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
+        }
+      ]
+    }
+  ]
+}
