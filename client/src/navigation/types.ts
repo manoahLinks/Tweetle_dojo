@@ -1,4 +1,5 @@
 export type RootStackParamList = {
-  Connect: undefined;
+  Landing: undefined;
   Dashboard: undefined;
+  GameBoard: { mode?: 'classic' | 'daily' | 'stake' | 'sponsored' };
 };
