@@ -1,20 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { SessionProvider, useSession } from './src/hooks/SessionContext';
+import { ConnectScreen } from './src/screens/ConnectScreen';
+import { DashboardScreen } from './src/screens/DashboardScreen';
+
+function Router() {
+  const { isConnected } = useSession();
+  return isConnected ? <DashboardScreen /> : <ConnectScreen />;
+}
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SessionProvider>
+      <Router />
+    </SessionProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
