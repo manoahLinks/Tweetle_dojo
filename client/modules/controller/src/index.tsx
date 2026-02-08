@@ -18,54 +18,41 @@ console.log('Controller installer:', installer);
 const controllerAvailable = installer && typeof installer.installRustCrate === 'function';
 console.log('Controller available:', controllerAvailable);
 
+export const isNativeModuleAvailable = controllerAvailable;
+
 if (!controllerAvailable) {
-  throw new Error('❌ CRITICAL: Controller native module not found! Make sure the native build completed successfully (iOS: pod install, Android: gradle build).');
-}
-
-try {
-  console.log('⚙️ Installing Controller crate...');
-  const controllerResult = installer.installRustCrate();
-  console.log('✅ Controller crate installed, result:', controllerResult);
-  
-  // Check if global.NativeController is now available
-  const hasNativeController = typeof (globalThis as any).NativeController !== 'undefined';
-  console.log('globalThis.NativeController available:', hasNativeController);
-  if (hasNativeController) {
-    console.log('NativeController keys:', Object.keys((globalThis as any).NativeController || {}).slice(0, 5));
+  console.warn('⚠️ Controller native module not found. Run a native build (expo run:android / expo run:ios) to enable wallet connection.');
+} else {
+  try {
+    console.log('⚙️ Installing Controller crate...');
+    const controllerResult = installer.installRustCrate();
+    console.log('✅ Controller crate installed, result:', controllerResult);
+  } catch (e) {
+    console.error('❌ Error installing Controller:', e);
   }
-} catch (e) {
-  console.error('❌ Error installing Controller:', e);
-  throw e;
 }
 
-console.log('✅ Controller Rust crate installed successfully!');
-
-// NOW it's safe to import the generated bindings
-// Export the generated bindings to the app.
+// Export generated bindings (they will only work if native module was installed)
 export * from './generated/controller';
 
-// Now import the bindings so we can:
-// - intialize them
-// - export them as namespaced objects as the default export.
 import * as controller from './generated/controller';
 
-// Initialize the generated bindings: mostly checksums, but also callbacks.
-// - the boolean flag ensures this loads exactly once, even if the JS code
-//   is reloaded (e.g. during development with metro).
+// Initialize the generated bindings only if native module loaded
 let initialized = false;
-if (!initialized) {
-  controller.default.initialize();
-  initialized = true;
+if (controllerAvailable && !initialized) {
+  try {
+    controller.default.initialize();
+    initialized = true;
+    console.log('✅ Controller Rust crate installed successfully!');
+  } catch (e) {
+    console.error('❌ Error initializing Controller bindings:', e);
+  }
 }
 
-// This provides parity with the index.web.ts version of this file.
-// The web version relies on an asynchronous fetch, which this doesn't
-// need, so we just no-op.
 export async function uniffiInitAsync() {
   // NOOP.
 }
 
-// Export the crates as individually namespaced objects.
 export default {
   controller,
 };

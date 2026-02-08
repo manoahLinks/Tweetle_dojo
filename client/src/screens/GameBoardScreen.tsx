@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,13 @@ import {
   Dimensions,
   Platform,
   Image,
+  ActivityIndicator,
+  Alert,
+  Modal,
 } from 'react-native';
 import { NavigationContext } from '../../App';
+import { useSession } from '../hooks/SessionContext';
+import { useGameActions } from '../hooks/useGameActions';
 import { colors, fontSize, fontWeight, spacing, radius, grid } from '../theme';
 
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 54 : 36;
@@ -121,37 +126,122 @@ function KeyboardKey({
 }
 
 // ── Game Board Screen ──
+function truncateAddress(addr: string): string {
+  if (!addr || addr.length < 12) return addr || '';
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+}
+
 export function GameBoardScreen() {
   const { goBack } = useContext(NavigationContext);
+  const { sessionMetadata } = useSession();
+  const { registerPlayer, startGame, submitGuess, resumeOrStartGame } = useGameActions();
 
-  // Clean state — ready for integration
+  const [gameId, setGameId] = useState<number | null>(null);
   const [guesses, setGuesses] = useState<TileData[][]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [gameOver, setGameOver] = useState<'won' | 'lost' | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [winAttempts, setWinAttempts] = useState(0);
   const currentRow = guesses.length;
   const keyStates = getKeyboardStates(guesses);
 
+  // Register player (if needed) then resume existing game or start new one
+  useEffect(() => {
+    let cancelled = false;
+    async function init() {
+      setIsLoading(true);
+      try {
+        // Ensure player is registered — ignore if already registered
+        const username = sessionMetadata?.username || 'Player';
+        try {
+          await registerPlayer(username);
+        } catch (regErr: any) {
+          const msg = regErr.message?.toLowerCase() || '';
+          if (!msg.includes('already') && !msg.includes('registered')) {
+            throw regErr;
+          }
+        }
+
+        // Resume active game or start a new one
+        const resumed = await resumeOrStartGame();
+        if (!cancelled) {
+          setGameId(resumed.gameId);
+          setGuesses(resumed.guesses);
+          if (resumed.gameOver) setGameOver(resumed.gameOver);
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          Alert.alert('Error', err.message);
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+    init();
+    return () => { cancelled = true; };
+  }, [registerPlayer, resumeOrStartGame, sessionMetadata]);
+
   const handleKeyPress = useCallback(
     (key: string) => {
+      if (gameOver || isLoading) return;
       if (key === '⌫') {
         setCurrentGuess((prev) => prev.slice(0, -1));
       } else if (currentGuess.length < grid.cols) {
         setCurrentGuess((prev) => prev + key);
       }
     },
-    [currentGuess]
+    [currentGuess, gameOver, isLoading]
   );
 
-  const handleSubmit = useCallback(() => {
-    if (currentGuess.length !== grid.cols) return;
-    // TODO: integrate with contract — call submitGuess
-    // For now, mark all as absent (placeholder feedback)
-    const submittedRow: TileData[] = currentGuess.split('').map((letter) => ({
-      letter,
-      state: 'absent' as TileState,
-    }));
-    setGuesses((prev) => [...prev, submittedRow]);
-    setCurrentGuess('');
-  }, [currentGuess]);
+  const handleSubmit = useCallback(async () => {
+    if (currentGuess.length !== grid.cols || !gameId || isLoading || gameOver) return;
+    setIsLoading(true);
+    try {
+      const result = await submitGuess(gameId, currentGuess, guesses.length);
+      const submittedRow: TileData[] = currentGuess.split('').map((letter, i) => ({
+        letter,
+        state: result.tileStates[i] || 'absent',
+      }));
+      setGuesses((prev) => [...prev, submittedRow]);
+      setCurrentGuess('');
+
+      if (result.isWin) {
+        setGameOver('won');
+        setWinAttempts(result.attemptNumber);
+        setTimeout(() => setShowModal(true), 400);
+      } else if (result.isLoss) {
+        setGameOver('lost');
+        setTimeout(() => setShowModal(true), 400);
+      }
+    } catch (err: any) {
+      Alert.alert('Error', err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentGuess, gameId, isLoading, gameOver, guesses.length, submitGuess]);
+
+  const handlePlayNext = useCallback(async () => {
+    setShowModal(false);
+    setIsLoading(true);
+    try {
+      const newGameId = await startGame();
+      setGameId(newGameId);
+      setGuesses([]);
+      setCurrentGuess('');
+      setGameOver(null);
+      setWinAttempts(0);
+    } catch (err: any) {
+      Alert.alert('Error', err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [startGame]);
+
+  const handleExtraAttempt = useCallback(() => {
+    // TODO: not yet implemented in the contract
+    setShowModal(false);
+  }, []);
 
   // Build 6x5 board
   const board: TileData[][] = [];
@@ -177,7 +267,19 @@ export function GameBoardScreen() {
     }
   }
 
-  const canSubmit = currentGuess.length === grid.cols;
+  const canSubmit = currentGuess.length === grid.cols && !isLoading && !gameOver && gameId !== null;
+
+  // Loading overlay while starting game
+  if (gameId === null) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={colors.brand.primary} />
+        <Text style={{ color: colors.text.primary, marginTop: spacing.md, fontSize: fontSize.sm }}>
+          Starting game...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -197,7 +299,9 @@ export function GameBoardScreen() {
             <View style={styles.pillDot}>
               <Text style={styles.pillDotText}>C</Text>
             </View>
-            <Text style={styles.pillText}>0x89008</Text>
+            <Text style={styles.pillText}>
+              {sessionMetadata.username || truncateAddress(sessionMetadata.address || '0x...')}
+            </Text>
           </View>
 
           <View style={styles.infoPillSmall}>
@@ -258,9 +362,92 @@ export function GameBoardScreen() {
           disabled={!canSubmit}
           onPress={handleSubmit}
         >
-          <Text style={styles.submitText}>Submit</Text>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={colors.text.primary} />
+          ) : (
+            <Text style={styles.submitText}>
+              {gameOver ? (gameOver === 'won' ? 'You Won!' : 'Game Over') : 'Submit'}
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
+
+      {/* Win / Loss Modal */}
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Close button */}
+            <TouchableOpacity
+              style={styles.modalClose}
+              onPress={() => setShowModal(false)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.modalCloseText}>✕</Text>
+            </TouchableOpacity>
+
+            {/* Title */}
+            <Text
+              style={[
+                styles.modalTitle,
+                { color: gameOver === 'won' ? colors.success : colors.success },
+              ]}
+            >
+              {gameOver === 'won' ? 'YOU WON!' : 'TRY AGAIN'}
+            </Text>
+
+            {/* Icon */}
+            <View
+              style={[
+                styles.modalIcon,
+                {
+                  backgroundColor:
+                    gameOver === 'won' ? colors.success : colors.brand.secondary,
+                },
+              ]}
+            >
+              <Text style={styles.modalIconText}>
+                {gameOver === 'won' ? '🏆' : '✋'}
+              </Text>
+            </View>
+
+            {/* Subtitle */}
+            <Text style={styles.modalSubtitle}>
+              {gameOver === 'won'
+                ? `Solved in ${winAttempts} attempt${winAttempts !== 1 ? 's' : ''}!`
+                : 'Better luck next time!'}
+            </Text>
+
+            {/* Play Next button */}
+            <TouchableOpacity
+              style={styles.modalBtnPrimary}
+              activeOpacity={0.8}
+              onPress={handlePlayNext}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color={colors.text.primary} />
+              ) : (
+                <Text style={styles.modalBtnPrimaryText}>Play Next</Text>
+              )}
+            </TouchableOpacity>
+
+            {/* Extra Attempt button (loss only) */}
+            {gameOver === 'lost' && (
+              <TouchableOpacity
+                style={styles.modalBtnSecondary}
+                activeOpacity={0.8}
+                onPress={handleExtraAttempt}
+              >
+                <Text style={styles.modalBtnSecondaryText}>Get Extra Attempt</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -450,5 +637,93 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontSize: fontSize.sm,
     fontWeight: fontWeight.bold,
+  },
+
+  // ── Modal ──
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing['2xl'],
+  },
+  modalContent: {
+    width: '100%',
+    backgroundColor: colors.bg.primary,
+    borderRadius: radius.xl,
+    paddingVertical: spacing['3xl'],
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
+  },
+  modalClose: {
+    position: 'absolute',
+    top: spacing.base,
+    right: spacing.base,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCloseText: {
+    color: colors.text.secondary,
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.bold,
+  },
+  modalTitle: {
+    fontSize: fontSize['4xl'],
+    fontWeight: fontWeight.extrabold,
+    letterSpacing: 2,
+    marginBottom: spacing.lg,
+    textAlign: 'center',
+  },
+  modalIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
+  },
+  modalIconText: {
+    fontSize: 28,
+  },
+  modalSubtitle: {
+    color: colors.text.secondary,
+    fontSize: fontSize.base,
+    marginBottom: spacing['2xl'],
+    textAlign: 'center',
+  },
+  modalBtnPrimary: {
+    width: '100%',
+    backgroundColor: colors.success,
+    paddingVertical: spacing.base,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#4ADE80',
+    marginBottom: spacing.md,
+    minHeight: 52,
+  },
+  modalBtnPrimaryText: {
+    color: colors.text.primary,
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+  },
+  modalBtnSecondary: {
+    width: '100%',
+    backgroundColor: colors.silver,
+    paddingVertical: spacing.base,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#D1D5DB',
+    minHeight: 52,
+  },
+  modalBtnSecondaryText: {
+    color: colors.text.primary,
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
   },
 });
