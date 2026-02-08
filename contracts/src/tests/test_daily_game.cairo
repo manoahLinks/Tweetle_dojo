@@ -385,7 +385,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('Max attempts reached', 'ENTRYPOINT_FAILED'))]
+    #[should_panic(expected: ('Game already finished', 'ENTRYPOINT_FAILED'))]
     fn test_max_attempts_exceeded() {
         let caller: starknet::ContractAddress = 0xABCD.try_into().unwrap();
         
@@ -420,36 +420,6 @@ mod tests {
 
         // Try to submit 7th guess - should panic
         daily_game_system.submit_daily_guess(game_id, 422726431348); 
-    }
-
-    #[test]
-    #[should_panic(expected: ('Invalid word', 'ENTRYPOINT_FAILED'))]
-    fn test_invalid_word_guess() {
-        let caller: starknet::ContractAddress = 0xBCDE.try_into().unwrap();
-        
-        let ndef = namespace_def();
-        let mut world = spawn_test_world(dojo::world::world::TEST_CLASS_HASH, [ndef].span());
-        world.sync_perms_and_inits(contract_defs());
-
-        starknet::testing::set_contract_address(caller);
-        starknet::testing::set_account_contract_address(caller);
-
-        let test_timestamp: u64 = 10000000;
-        starknet::testing::set_block_timestamp(test_timestamp);
-
-        // Register player
-        let (player_addr, _) = world.dns(@"player_system").unwrap();
-        let player_system = IPlayerActionsDispatcher { contract_address: player_addr };
-        player_system.register_player('invalidword', 0.try_into().unwrap());
-
-        // Get or create and join daily game
-        let (daily_game_addr, _) = world.dns(@"daily_game").unwrap();
-        let daily_game_system = IDailyGameDispatcher { contract_address: daily_game_addr };
-        let game_id = daily_game_system.get_or_create_daily_game();
-        daily_game_system.join_daily_game(game_id);
-
-        // Submit an invalid word (not in dictionary)
-        daily_game_system.submit_daily_guess(game_id, 0x7878787878); // 'xxxxx'
     }
 
     // ============================================

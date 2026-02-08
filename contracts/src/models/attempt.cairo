@@ -35,4 +35,5 @@ pub struct DailyAttemptCount {
     pub game_id: u64,
     pub count: u8,
     pub has_joined: bool,
+    pub has_finished: bool,
 }

@@ -149,6 +149,7 @@ mod daily_game {
                 game_id,
                 count: 0,
                 has_joined: true,
+                has_finished: false,
             };
 
             world.write_model(@game);
@@ -176,6 +177,7 @@ mod daily_game {
             // Read and validate attempt count
             let mut attempt_info: DailyAttemptCount = world.read_model((caller, game_id));
             assert(attempt_info.has_joined, 'Must join game first');
+            assert(!attempt_info.has_finished, 'Game already finished');
             assert(attempt_info.count < MAX_ATTEMPTS, 'Max attempts reached');
 
             // Validate the word
@@ -207,6 +209,8 @@ mod daily_game {
 
             // Check for win (all correct = 0x2AA = 682)
             if hint_packed == 682 {
+                attempt_info.has_finished = true;
+
                 // Add to winners
                 game.winners_count += 1;
                 let winner_index = game.winners_count;
@@ -221,7 +225,7 @@ mod daily_game {
                 let mut player: Player = world.read_model(caller);
                 let points_earned: u64 = (7 - attempt_info.count).into() * 15; // Daily games give more points
                 player.points += points_earned;
-                
+
                 world.write_model(@player);
                 world.write_model(@winner);
 
@@ -234,6 +238,8 @@ mod daily_game {
                 });
 
             } else if attempt_info.count == MAX_ATTEMPTS {
+                attempt_info.has_finished = true;
+
                 world.emit_event(@DailyGameLost {
                     game_id,
                     player: caller,
