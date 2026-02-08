@@ -114,7 +114,7 @@ export function DashboardScreen() {
         <View style={styles.modesRow}>
           <TouchableOpacity
             style={styles.modeCard}
-            onPress={() => navigate('gameboard')}
+            onPress={() => navigate('gameboard', { mode: 'classic' })}
             activeOpacity={0.8}
           >
             <Text style={styles.modeIcon}>🎯</Text>
@@ -127,7 +127,7 @@ export function DashboardScreen() {
 
           <TouchableOpacity
             style={[styles.modeCard, styles.modeCardDaily]}
-            onPress={() => navigate('gameboard')}
+            onPress={() => navigate('gameboard', { mode: 'daily' })}
             activeOpacity={0.8}
           >
             <Text style={styles.modeIcon}>📅</Text>
@@ -166,7 +166,7 @@ export function DashboardScreen() {
 
           <TouchableOpacity
             style={styles.playButton}
-            onPress={() => navigate('gameboard')}
+            onPress={() => navigate('gameboard', { mode: 'daily' })}
             activeOpacity={0.8}
           >
             <Text style={styles.playButtonText}>Play Now</Text>

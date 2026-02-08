@@ -26,4 +26,4 @@ private_key = "0xc5b2fcab997346f3ea1c00b002ecf6f382c5f9c9659a3894eb783c5320f912"
 # world_address = "0x06171ed98331e849d6084bf2b3e3186a7ddf35574dd68cab4691053ee8ab69d7"
 
 [writers]
-"tweetle_dojo" = ["tweetle_dojo-actions", "tweetle_dojo-player_system"]
+"tweetle_dojo" = ["tweetle_dojo-actions", "tweetle_dojo-player_system", "tweetle_dojo-daily_game"]

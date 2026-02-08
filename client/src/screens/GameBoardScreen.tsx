@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext, useEffect } from 'react';
+import React, { useState, useCallback, useContext, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,9 @@ import {
   Alert,
   Modal,
 } from 'react-native';
-import { NavigationContext } from '../../App';
+import { NavigationContext, type GameMode } from '../../App';
 import { useSession } from '../hooks/SessionContext';
-import { useGameActions } from '../hooks/useGameActions';
+import { useGameActions, type DailyStatus } from '../hooks/useGameActions';
 import { colors, fontSize, fontWeight, spacing, radius, grid } from '../theme';
 
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 54 : 36;
@@ -125,6 +125,113 @@ function KeyboardKey({
   );
 }
 
+// ── Countdown helper ──
+function formatCountdown(seconds: number): string {
+  if (seconds <= 0) return '00:00:00';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+// ── Countdown Screen ──
+function DailyCountdownScreen({
+  dailyStatus,
+  goBack,
+}: {
+  dailyStatus: DailyStatus;
+  goBack: () => void;
+}) {
+  const [secondsLeft, setSecondsLeft] = useState(() => {
+    return Math.max(0, dailyStatus.expiresAt - Math.floor(Date.now() / 1000));
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const remaining = Math.max(0, dailyStatus.expiresAt - Math.floor(Date.now() / 1000));
+      setSecondsLeft(remaining);
+      if (remaining <= 0) clearInterval(timer);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [dailyStatus.expiresAt]);
+
+  const isWin = dailyStatus.gameOver === 'won';
+  const attemptCount = dailyStatus.guesses.length;
+
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={goBack} style={styles.backBtn}>
+            <Text style={styles.backText}>‹ Back</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Daily Challenge</Text>
+          <View style={styles.backBtn} />
+        </View>
+      </View>
+
+      <View style={styles.countdownWrapper}>
+        {/* Result icon */}
+        <View
+          style={[
+            styles.countdownIcon,
+            { backgroundColor: isWin ? colors.success : colors.brand.secondary },
+          ]}
+        >
+          <Text style={styles.countdownIconText}>{isWin ? '🏆' : '✋'}</Text>
+        </View>
+
+        {/* Result text */}
+        <Text
+          style={[
+            styles.countdownResultText,
+            { color: isWin ? colors.success : colors.brand.primary },
+          ]}
+        >
+          {isWin ? 'YOU WON!' : 'BETTER LUCK TOMORROW'}
+        </Text>
+
+        {isWin && (
+          <Text style={styles.countdownSubtext}>
+            Solved in {attemptCount} attempt{attemptCount !== 1 ? 's' : ''}
+          </Text>
+        )}
+
+        {/* Mini board preview */}
+        <View style={styles.miniBoard}>
+          {dailyStatus.guesses.map((row, rowIdx) => (
+            <View key={rowIdx} style={styles.miniRow}>
+              {row.map((tile, colIdx) => (
+                <View
+                  key={`${rowIdx}-${colIdx}`}
+                  style={[
+                    styles.miniTile,
+                    { backgroundColor: TILE_BG[tile.state] },
+                  ]}
+                />
+              ))}
+            </View>
+          ))}
+        </View>
+
+        {/* Countdown */}
+        <Text style={styles.countdownLabel}>Next Daily Challenge in</Text>
+        <Text style={styles.countdownTimer}>{formatCountdown(secondsLeft)}</Text>
+
+        {/* Back to dashboard */}
+        <TouchableOpacity
+          style={styles.countdownBtn}
+          onPress={goBack}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.countdownBtnText}>Back to Dashboard</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 // ── Game Board Screen ──
 function truncateAddress(addr: string): string {
   if (!addr || addr.length < 12) return addr || '';
@@ -132,9 +239,18 @@ function truncateAddress(addr: string): string {
 }
 
 export function GameBoardScreen() {
-  const { goBack } = useContext(NavigationContext);
+  const { goBack, params } = useContext(NavigationContext);
+  const mode: GameMode = (params?.mode as GameMode) || 'classic';
   const { sessionMetadata } = useSession();
-  const { registerPlayer, startGame, submitGuess, resumeOrStartGame } = useGameActions();
+  const {
+    registerPlayer,
+    startGame,
+    submitGuess,
+    resumeOrStartGame,
+    checkDailyStatus,
+    startDailyGame,
+    submitDailyGuess,
+  } = useGameActions();
 
   const [gameId, setGameId] = useState<number | null>(null);
   const [guesses, setGuesses] = useState<TileData[][]>([]);
@@ -143,16 +259,17 @@ export function GameBoardScreen() {
   const [gameOver, setGameOver] = useState<'won' | 'lost' | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [winAttempts, setWinAttempts] = useState(0);
+  const [dailyFinished, setDailyFinished] = useState<DailyStatus | null>(null);
   const currentRow = guesses.length;
   const keyStates = getKeyboardStates(guesses);
 
-  // Register player (if needed) then resume existing game or start new one
+  // Register player (if needed) then init game based on mode
   useEffect(() => {
     let cancelled = false;
     async function init() {
       setIsLoading(true);
       try {
-        // Ensure player is registered — ignore if already registered
+        // Ensure player is registered
         const username = sessionMetadata?.username || 'Player';
         try {
           await registerPlayer(username);
@@ -163,12 +280,38 @@ export function GameBoardScreen() {
           }
         }
 
-        // Resume active game or start a new one
-        const resumed = await resumeOrStartGame();
-        if (!cancelled) {
-          setGameId(resumed.gameId);
-          setGuesses(resumed.guesses);
-          if (resumed.gameOver) setGameOver(resumed.gameOver);
+        if (mode === 'daily') {
+          // Check daily game status
+          const status = await checkDailyStatus();
+
+          if (status.hasFinished) {
+            // Already played today — show countdown
+            if (!cancelled) setDailyFinished(status);
+            return;
+          }
+
+          if (!status.hasJoined) {
+            // Start and join daily game
+            const dailyGameId = await startDailyGame();
+            if (!cancelled) {
+              setGameId(dailyGameId);
+              setGuesses([]);
+            }
+          } else {
+            // Resume in-progress daily game
+            if (!cancelled) {
+              setGameId(status.gameId);
+              setGuesses(status.guesses);
+            }
+          }
+        } else {
+          // Classic mode — resume or start
+          const resumed = await resumeOrStartGame();
+          if (!cancelled) {
+            setGameId(resumed.gameId);
+            setGuesses(resumed.guesses);
+            if (resumed.gameOver) setGameOver(resumed.gameOver);
+          }
         }
       } catch (err: any) {
         if (!cancelled) {
@@ -180,7 +323,7 @@ export function GameBoardScreen() {
     }
     init();
     return () => { cancelled = true; };
-  }, [registerPlayer, resumeOrStartGame, sessionMetadata]);
+  }, [registerPlayer, resumeOrStartGame, checkDailyStatus, startDailyGame, sessionMetadata, mode]);
 
   const handleKeyPress = useCallback(
     (key: string) => {
@@ -198,7 +341,8 @@ export function GameBoardScreen() {
     if (currentGuess.length !== grid.cols || !gameId || isLoading || gameOver) return;
     setIsLoading(true);
     try {
-      const result = await submitGuess(gameId, currentGuess, guesses.length);
+      const submitFn = mode === 'daily' ? submitDailyGuess : submitGuess;
+      const result = await submitFn(gameId, currentGuess, guesses.length);
       const submittedRow: TileData[] = currentGuess.split('').map((letter, i) => ({
         letter,
         state: result.tileStates[i] || 'absent',
@@ -219,10 +363,19 @@ export function GameBoardScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentGuess, gameId, isLoading, gameOver, guesses.length, submitGuess]);
+  }, [currentGuess, gameId, isLoading, gameOver, guesses.length, submitGuess, submitDailyGuess, mode]);
 
   const handlePlayNext = useCallback(async () => {
     setShowModal(false);
+
+    if (mode === 'daily') {
+      // Daily mode — can't play again, show countdown
+      const status = await checkDailyStatus();
+      setDailyFinished(status);
+      return;
+    }
+
+    // Classic mode — start new game
     setIsLoading(true);
     try {
       const newGameId = await startGame();
@@ -236,12 +389,17 @@ export function GameBoardScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [startGame]);
+  }, [startGame, mode, checkDailyStatus]);
 
   const handleExtraAttempt = useCallback(() => {
     // TODO: not yet implemented in the contract
     setShowModal(false);
   }, []);
+
+  // If daily game is finished, show countdown
+  if (dailyFinished) {
+    return <DailyCountdownScreen dailyStatus={dailyFinished} goBack={goBack} />;
+  }
 
   // Build 6x5 board
   const board: TileData[][] = [];
@@ -268,6 +426,7 @@ export function GameBoardScreen() {
   }
 
   const canSubmit = currentGuess.length === grid.cols && !isLoading && !gameOver && gameId !== null;
+  const isDaily = mode === 'daily';
 
   // Loading overlay while starting game
   if (gameId === null) {
@@ -275,7 +434,7 @@ export function GameBoardScreen() {
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color={colors.brand.primary} />
         <Text style={{ color: colors.text.primary, marginTop: spacing.md, fontSize: fontSize.sm }}>
-          Starting game...
+          {isDaily ? 'Loading daily challenge...' : 'Starting game...'}
         </Text>
       </View>
     );
@@ -289,7 +448,9 @@ export function GameBoardScreen() {
           <TouchableOpacity onPress={goBack} style={styles.backBtn}>
             <Text style={styles.backText}>‹ Back</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Tweetle</Text>
+          <Text style={styles.headerTitle}>
+            {isDaily ? 'Daily Challenge' : 'Tweetle'}
+          </Text>
           <View style={styles.backBtn} />
         </View>
 
@@ -305,8 +466,8 @@ export function GameBoardScreen() {
           </View>
 
           <View style={styles.infoPillSmall}>
-            <Text style={styles.pillEmoji}>📅</Text>
-            <Text style={styles.pillText}>19</Text>
+            <Text style={styles.pillEmoji}>{isDaily ? '📅' : '🎯'}</Text>
+            <Text style={styles.pillText}>{isDaily ? 'Daily' : 'Classic'}</Text>
           </View>
 
           <View style={[styles.infoPill, styles.scorePill]}>
@@ -422,7 +583,7 @@ export function GameBoardScreen() {
                 : 'Better luck next time!'}
             </Text>
 
-            {/* Play Next button */}
+            {/* Play Next / Next Challenge button */}
             <TouchableOpacity
               style={styles.modalBtnPrimary}
               activeOpacity={0.8}
@@ -431,12 +592,14 @@ export function GameBoardScreen() {
               {isLoading ? (
                 <ActivityIndicator size="small" color={colors.text.primary} />
               ) : (
-                <Text style={styles.modalBtnPrimaryText}>Play Next</Text>
+                <Text style={styles.modalBtnPrimaryText}>
+                  {isDaily ? 'See Countdown' : 'Play Next'}
+                </Text>
               )}
             </TouchableOpacity>
 
-            {/* Extra Attempt button (loss only) */}
-            {gameOver === 'lost' && (
+            {/* Extra Attempt button (loss only, classic only) */}
+            {gameOver === 'lost' && !isDaily && (
               <TouchableOpacity
                 style={styles.modalBtnSecondary}
                 activeOpacity={0.8}
@@ -725,5 +888,75 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontSize: fontSize.lg,
     fontWeight: fontWeight.semibold,
+  },
+
+  // ── Countdown Screen ──
+  countdownWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing['2xl'],
+  },
+  countdownIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xl,
+  },
+  countdownIconText: {
+    fontSize: 36,
+  },
+  countdownResultText: {
+    fontSize: fontSize['3xl'],
+    fontWeight: fontWeight.extrabold,
+    letterSpacing: 2,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  countdownSubtext: {
+    color: colors.text.secondary,
+    fontSize: fontSize.base,
+    marginBottom: spacing.xl,
+    textAlign: 'center',
+  },
+  miniBoard: {
+    gap: 3,
+    marginBottom: spacing['2xl'],
+  },
+  miniRow: {
+    flexDirection: 'row',
+    gap: 3,
+  },
+  miniTile: {
+    width: 28,
+    height: 28,
+    borderRadius: 4,
+  },
+  countdownLabel: {
+    color: colors.text.secondary,
+    fontSize: fontSize.sm,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  countdownTimer: {
+    color: colors.text.primary,
+    fontSize: fontSize['4xl'],
+    fontWeight: fontWeight.extrabold,
+    letterSpacing: 4,
+    marginBottom: spacing['2xl'],
+    textAlign: 'center',
+  },
+  countdownBtn: {
+    backgroundColor: colors.brand.primary,
+    paddingHorizontal: spacing['3xl'],
+    paddingVertical: spacing.base,
+    borderRadius: radius.full,
+  },
+  countdownBtnText: {
+    color: colors.text.primary,
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.bold,
   },
 });
