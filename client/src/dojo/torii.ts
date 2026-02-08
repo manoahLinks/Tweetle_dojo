@@ -122,6 +122,79 @@ export async function fetchAttemptCount(player: string, gameId: number) {
   return node ?? null;
 }
 
+// ── DailyAttempt ──
+
+export async function fetchLatestDailyAttempt(player: string, gameId: number) {
+  const data = await gql(`
+    query ($player: String!, $gameId: String!) {
+      tweetleDojoDailyAttemptModels(
+        where: { player: $player, game_id: $gameId }
+        order: { field: ATTEMPT_NUMBER, direction: DESC }
+        first: 1
+      ) {
+        edges { node { player game_id attempt_number word hint_packed } }
+      }
+    }
+  `, { player, gameId: '0x' + gameId.toString(16) });
+  const node = data.tweetleDojoDailyAttemptModels?.edges?.[0]?.node;
+  return node ?? null;
+}
+
+export async function pollNewDailyAttempt(
+  player: string,
+  gameId: number,
+  afterAttempt: number
+): Promise<any> {
+  return pollTorii(async () => {
+    const attempt = await fetchLatestDailyAttempt(player, gameId);
+    if (attempt && Number(attempt.attempt_number) > afterAttempt) return attempt;
+    return null;
+  });
+}
+
+// ── DailyGame polling (for get_or_create + join) ──
+
+export async function fetchDailyGame(gameId: number) {
+  const data = await gql(`
+    query ($gameId: String!) {
+      tweetleDojoDailyGameModels(where: { game_id: $gameId }, first: 1) {
+        edges { node { game_id starts_at expires_at winners_count players_count } }
+      }
+    }
+  `, { gameId: '0x' + gameId.toString(16) });
+  const node = data.tweetleDojoDailyGameModels?.edges?.[0]?.node;
+  return node ?? null;
+}
+
+export async function pollDailyGame(gameId: number): Promise<any> {
+  return pollTorii(async () => {
+    return await fetchDailyGame(gameId);
+  });
+}
+
+export async function fetchDailyAttemptCount(player: string, gameId: number) {
+  const data = await gql(`
+    query ($player: String!, $gameId: String!) {
+      tweetleDojoDailyAttemptCountModels(
+        where: { player: $player, game_id: $gameId }
+        first: 1
+      ) {
+        edges { node { player game_id count has_joined } }
+      }
+    }
+  `, { player, gameId: '0x' + gameId.toString(16) });
+  const node = data.tweetleDojoDailyAttemptCountModels?.edges?.[0]?.node;
+  return node ?? null;
+}
+
+export async function pollDailyJoined(player: string, gameId: number): Promise<any> {
+  return pollTorii(async () => {
+    const ac = await fetchDailyAttemptCount(player, gameId);
+    if (ac && ac.has_joined) return ac;
+    return null;
+  });
+}
+
 // ── ClassicGame ended check (for win/loss) ──
 
 export async function fetchClassicGame(player: string, gameId: number) {
