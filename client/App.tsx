@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SessionProvider, useSession } from './src/hooks/SessionContext';
+import { DojoContextProvider } from './src/dojo/DojoContext';
 import { LandingScreen } from './src/screens/LandingScreen';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { GameBoardScreen } from './src/screens/GameBoardScreen';
@@ -21,18 +22,20 @@ function Router() {
   const [history, setHistory] = useState<Screen[]>(['landing']);
   const currentScreen = history[history.length - 1];
 
-  const navigate = (screen: Screen) => {
+  const navigate = useCallback((screen: Screen) => {
     setHistory((prev) => [...prev, screen]);
-  };
+  }, []);
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     setHistory((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
-  };
+  }, []);
 
-  // If not connected, always show landing
-  if (!isConnected && currentScreen !== 'landing') {
-    setHistory(['landing']);
-  }
+  // If disconnected, reset to landing
+  useEffect(() => {
+    if (!isConnected) {
+      setHistory(['landing']);
+    }
+  }, [isConnected]);
 
   return (
     <NavigationContext.Provider value={{ navigate, goBack }}>
@@ -48,9 +51,11 @@ export default function App() {
   return (
     <>
       <StatusBar style="light" />
-      <SessionProvider>
-        <Router />
-      </SessionProvider>
+      <DojoContextProvider>
+        <SessionProvider>
+          <Router />
+        </SessionProvider>
+      </DojoContextProvider>
     </>
   );
 }

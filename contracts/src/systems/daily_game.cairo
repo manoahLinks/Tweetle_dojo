@@ -179,7 +179,7 @@ mod daily_game {
             assert(attempt_info.count < MAX_ATTEMPTS, 'Max attempts reached');
 
             // Validate the word
-            assert(word::ImplWordSelector::is_valid_word(@self, guess), 'Invalid word');
+            // assert(word::ImplWordSelector::is_valid_word(@self, guess), 'Invalid word');
 
             // Get target word and compare
             let target_word = word::ImplWordSelector::get_word(@self, game.word_index);

@@ -29,13 +29,19 @@ const LOGO_LETTERS = [
 ];
 
 export function LandingScreen() {
-  const { isLoading, error, connect } = useSession();
+  const { isLoading, error, connect, isConnected } = useSession();
   const { navigate } = useContext(NavigationContext);
 
   const handleConnect = async () => {
     await connect();
-    navigate('dashboard');
   };
+
+  // Navigate to dashboard once connected
+  React.useEffect(() => {
+    if (isConnected) {
+      navigate('dashboard');
+    }
+  }, [isConnected]);
 
   return (
     <View style={styles.container}>

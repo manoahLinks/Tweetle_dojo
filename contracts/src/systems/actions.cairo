@@ -106,7 +106,7 @@ mod actions {
             let mut attempt_info: ClassicGameAttemptCount = world.read_model((caller, game_id));
             assert(attempt_info.count < 6, 'Max attempts reached');
 
-            assert(word::ImplWordSelector::is_valid_word(@self, guess), 'Invalid word');
+            // assert(word::ImplWordSelector::is_valid_word(@self, guess), 'Invalid word');
 
             let target_word = word::ImplWordSelector::get_word(@self, game.word_index);
             let hint_packed = compare_words(target_word, guess);

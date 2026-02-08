@@ -31,8 +31,13 @@ const MOCK = {
   ],
 };
 
+function truncateAddress(addr: string): string {
+  if (!addr || addr.length < 12) return addr || '';
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+}
+
 export function DashboardScreen() {
-  const _session = useSession();
+  const { sessionMetadata, isConnected, disconnect } = useSession();
   const { navigate, goBack } = useContext(NavigationContext);
 
   return (
@@ -50,11 +55,15 @@ export function DashboardScreen() {
           <View style={{ width: 40 }} />
         </View>
 
-        <TouchableOpacity style={styles.walletBadge}>
+        <TouchableOpacity style={styles.walletBadge} onPress={isConnected ? disconnect : undefined}>
           <View style={styles.walletIcon}>
             <Text style={styles.walletIconText}>C</Text>
           </View>
-          <Text style={styles.walletText}>Connect wallet</Text>
+          <Text style={styles.walletText}>
+            {isConnected
+              ? sessionMetadata.username || truncateAddress(sessionMetadata.address || '')
+              : 'Not connected'}
+          </Text>
         </TouchableOpacity>
       </View>
 
