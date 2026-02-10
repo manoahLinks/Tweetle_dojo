@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,38 +6,44 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
-  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { NavigationContext } from '../../App';
+import { useSession } from '../hooks/SessionContext';
+import { feltToString } from '../dojo/models';
+import { getLevel } from '../hooks/usePlayer';
+import {
+  apolloClient,
+  GET_LEADERBOARD,
+  type GetLeaderboardResponse,
+} from '../dojo/apollo';
 import { colors, fontSize, fontWeight, spacing, radius } from '../theme';
 
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 54 : 36;
 
-type Tab = 'daily' | 'alltime';
-
-interface PlayerEntry {
+interface LeaderboardEntry {
   rank: number;
-  username: string;
   address: string;
+  username: string;
   points: number;
+  gamesPlayed: number;
   level: string;
-  streak: number;
 }
 
-const MOCK_LEADERBOARD: PlayerEntry[] = [
-  { rank: 1, username: 'CryptoOwl', address: '0x7a3F...e91D', points: 12450, level: 'Eagle', streak: 28 },
-  { rank: 2, username: 'StarKnight', address: '0x4b1C...f3A2', points: 11200, level: 'Hawk', streak: 22 },
-  { rank: 3, username: 'DojoMaster', address: '0x9e2D...c8B5', points: 9870, level: 'Hawk', streak: 19 },
-  { rank: 4, username: 'WordSmith42', address: '0x1f4A...d7E3', points: 8540, level: 'Nightingale', streak: 15 },
-  { rank: 5, username: 'PuzzleBird', address: '0x6c8B...a2F1', points: 7320, level: 'Nightingale', streak: 12 },
-  { rank: 6, username: 'TweetleKing', address: '0x3d5E...b9C4', points: 6100, level: 'Songbird', streak: 10 },
-  { rank: 7, username: 'BlockOwl', address: '0x8a2F...e1D7', points: 5480, level: 'Songbird', streak: 8 },
-  { rank: 8, username: 'NightOwlX', address: '0x2b9C...f4A8', points: 4750, level: 'Fledgling', streak: 6 },
-  { rank: 9, username: 'CairoFan', address: '0x5e1D...c7B2', points: 3920, level: 'Fledgling', streak: 5 },
-  { rank: 10, username: 'StarkPlayer', address: '0xd4A8...a3E6', points: 3100, level: 'Hatchling', streak: 3 },
-];
-
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32']; // gold, silver, bronze
+
+function truncateAddress(addr: string): string {
+  if (!addr || addr.length < 12) return addr || '';
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+}
+
+function decodeUsername(raw: string): string {
+  try {
+    return raw ? feltToString(raw) : '';
+  } catch {
+    return raw || '';
+  }
+}
 
 function RankBadge({ rank }: { rank: number }) {
   if (rank <= 3) {
@@ -54,13 +60,14 @@ function RankBadge({ rank }: { rank: number }) {
   );
 }
 
-function PlayerRow({ player, isCurrentUser }: { player: PlayerEntry; isCurrentUser?: boolean }) {
+function PlayerRow({ player, isCurrentUser }: { player: LeaderboardEntry; isCurrentUser?: boolean }) {
+  const displayName = player.username || truncateAddress(player.address);
   return (
     <View style={[styles.playerRow, isCurrentUser && styles.playerRowHighlight]}>
       <RankBadge rank={player.rank} />
       <View style={styles.playerInfo}>
-        <Text style={styles.playerName}>{player.username}</Text>
-        <Text style={styles.playerMeta}>{player.level} · {player.streak}d streak</Text>
+        <Text style={styles.playerName}>{displayName}</Text>
+        <Text style={styles.playerMeta}>{player.level} · {player.gamesPlayed} games</Text>
       </View>
       <View style={styles.pointsContainer}>
         <Text style={styles.pointsValue}>{player.points.toLocaleString()}</Text>
@@ -72,10 +79,48 @@ function PlayerRow({ player, isCurrentUser }: { player: PlayerEntry; isCurrentUs
 
 export function LeaderboardScreen() {
   const { navigate, goBack } = useContext(NavigationContext);
-  const [activeTab, setActiveTab] = useState<Tab>('daily');
+  const { sessionMetadata } = useSession();
+  const currentAddress = sessionMetadata.address;
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const top3 = MOCK_LEADERBOARD.slice(0, 3);
-  const rest = MOCK_LEADERBOARD.slice(3);
+  const fetchLeaderboard = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await apolloClient.query<GetLeaderboardResponse>({
+        query: GET_LEADERBOARD,
+        variables: { first: 50 },
+        fetchPolicy: 'network-only',
+      });
+
+      const nodes = data?.tweetleDojoPlayerModels?.edges?.map((e) => e.node) ?? [];
+      const mapped: LeaderboardEntry[] = nodes.map((node, idx) => {
+        const points = Number(node.points);
+        const level = getLevel(points);
+        return {
+          rank: idx + 1,
+          address: node.address,
+          username: decodeUsername(node.username),
+          points,
+          gamesPlayed: Number(node.classic_game_count),
+          level: level.title,
+        };
+      });
+      setEntries(mapped);
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, [fetchLeaderboard]);
+
+  const top3 = entries.slice(0, 3);
+  const rest = entries.slice(3);
+  const hasTop3 = top3.length >= 3;
 
   return (
     <View style={styles.container}>
@@ -88,78 +133,80 @@ export function LeaderboardScreen() {
           <Text style={styles.headerTitle}>Leaderboard</Text>
           <View style={styles.backBtn} />
         </View>
-
-        {/* Tabs */}
-        <View style={styles.tabRow}>
-          <TouchableOpacity
-            style={[styles.tabPill, activeTab === 'daily' && styles.tabPillActive]}
-            onPress={() => setActiveTab('daily')}
-          >
-            <Text style={[styles.tabText, activeTab === 'daily' && styles.tabTextActive]}>
-              Daily
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabPill, activeTab === 'alltime' && styles.tabPillActive]}
-            onPress={() => setActiveTab('alltime')}
-          >
-            <Text style={[styles.tabText, activeTab === 'alltime' && styles.tabTextActive]}>
-              All Time
-            </Text>
-          </TouchableOpacity>
-        </View>
       </View>
 
-      <ScrollView
-        style={styles.body}
-        contentContainerStyle={styles.bodyContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Podium — Top 3 */}
-        <View style={styles.podium}>
-          {/* 2nd place */}
-          <View style={styles.podiumSlot}>
-            <View style={[styles.podiumAvatar, { backgroundColor: MEDAL_COLORS[1] }]}>
-              <Text style={styles.podiumAvatarText}>2</Text>
-            </View>
-            <Text style={styles.podiumName} numberOfLines={1}>{top3[1].username}</Text>
-            <Text style={styles.podiumPoints}>{top3[1].points.toLocaleString()}</Text>
-            <View style={[styles.podiumBar, styles.podiumBar2]} />
-          </View>
-
-          {/* 1st place */}
-          <View style={styles.podiumSlot}>
-            <Text style={styles.crownEmoji}>👑</Text>
-            <View style={[styles.podiumAvatar, styles.podiumAvatarFirst, { backgroundColor: MEDAL_COLORS[0] }]}>
-              <Text style={styles.podiumAvatarText}>1</Text>
-            </View>
-            <Text style={styles.podiumName} numberOfLines={1}>{top3[0].username}</Text>
-            <Text style={styles.podiumPointsFirst}>{top3[0].points.toLocaleString()}</Text>
-            <View style={[styles.podiumBar, styles.podiumBar1]} />
-          </View>
-
-          {/* 3rd place */}
-          <View style={styles.podiumSlot}>
-            <View style={[styles.podiumAvatar, { backgroundColor: MEDAL_COLORS[2] }]}>
-              <Text style={styles.podiumAvatarText}>3</Text>
-            </View>
-            <Text style={styles.podiumName} numberOfLines={1}>{top3[2].username}</Text>
-            <Text style={styles.podiumPoints}>{top3[2].points.toLocaleString()}</Text>
-            <View style={[styles.podiumBar, styles.podiumBar3]} />
-          </View>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.brand.primary} />
         </View>
-
-        {/* Remaining players */}
-        <View style={styles.listCard}>
-          {rest.map((player) => (
-            <PlayerRow
-              key={player.rank}
-              player={player}
-              isCurrentUser={player.username === 'TweetleKing'}
-            />
-          ))}
+      ) : entries.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>📊</Text>
+          <Text style={styles.emptyTitle}>No Players Yet</Text>
+          <Text style={styles.emptySubtitle}>
+            Be the first to win a game and claim the top spot!
+          </Text>
         </View>
-      </ScrollView>
+      ) : (
+        <ScrollView
+          style={styles.body}
+          contentContainerStyle={styles.bodyContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Podium — Top 3 (only if we have 3+ players) */}
+          {hasTop3 && (
+            <View style={styles.podium}>
+              {/* 2nd place */}
+              <View style={styles.podiumSlot}>
+                <View style={[styles.podiumAvatar, { backgroundColor: MEDAL_COLORS[1] }]}>
+                  <Text style={styles.podiumAvatarText}>2</Text>
+                </View>
+                <Text style={styles.podiumName} numberOfLines={1}>
+                  {top3[1].username || truncateAddress(top3[1].address)}
+                </Text>
+                <Text style={styles.podiumPoints}>{top3[1].points.toLocaleString()}</Text>
+                <View style={[styles.podiumBar, styles.podiumBar2]} />
+              </View>
+
+              {/* 1st place */}
+              <View style={styles.podiumSlot}>
+                <Text style={styles.crownEmoji}>👑</Text>
+                <View style={[styles.podiumAvatar, styles.podiumAvatarFirst, { backgroundColor: MEDAL_COLORS[0] }]}>
+                  <Text style={styles.podiumAvatarText}>1</Text>
+                </View>
+                <Text style={styles.podiumName} numberOfLines={1}>
+                  {top3[0].username || truncateAddress(top3[0].address)}
+                </Text>
+                <Text style={styles.podiumPointsFirst}>{top3[0].points.toLocaleString()}</Text>
+                <View style={[styles.podiumBar, styles.podiumBar1]} />
+              </View>
+
+              {/* 3rd place */}
+              <View style={styles.podiumSlot}>
+                <View style={[styles.podiumAvatar, { backgroundColor: MEDAL_COLORS[2] }]}>
+                  <Text style={styles.podiumAvatarText}>3</Text>
+                </View>
+                <Text style={styles.podiumName} numberOfLines={1}>
+                  {top3[2].username || truncateAddress(top3[2].address)}
+                </Text>
+                <Text style={styles.podiumPoints}>{top3[2].points.toLocaleString()}</Text>
+                <View style={[styles.podiumBar, styles.podiumBar3]} />
+              </View>
+            </View>
+          )}
+
+          {/* Player list — show all if <3 players, otherwise 4th onward */}
+          <View style={styles.listCard}>
+            {(hasTop3 ? rest : entries).map((player) => (
+              <PlayerRow
+                key={player.address}
+                player={player}
+                isCurrentUser={player.address === currentAddress}
+              />
+            ))}
+          </View>
+        </ScrollView>
+      )}
 
       {/* Bottom tab bar */}
       <View style={styles.bottomBar}>
@@ -171,9 +218,9 @@ export function LeaderboardScreen() {
           <Text style={styles.bottomTabIconActive}>📊</Text>
           <Text style={styles.bottomTabLabelActive}>Leaderboard</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomTab}>
-          <Text style={styles.bottomTabIcon}>👥</Text>
-          <Text style={styles.bottomTabLabel}>Friends</Text>
+        <TouchableOpacity style={styles.bottomTab} onPress={() => navigate('profile')}>
+          <Text style={styles.bottomTabIcon}>👤</Text>
+          <Text style={styles.bottomTabLabel}>Profile</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -200,7 +247,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   backBtn: {
     width: 50,
@@ -216,29 +263,33 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.bold,
     textAlign: 'center',
   },
-  tabRow: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    backgroundColor: colors.bg.surface,
-    borderRadius: radius.full,
-    padding: 3,
+
+  // ── Loading / Empty ──
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  tabPill: {
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.full,
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing['2xl'],
   },
-  tabPillActive: {
-    backgroundColor: colors.brand.primary,
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: spacing.lg,
   },
-  tabText: {
-    color: colors.text.muted,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
-  },
-  tabTextActive: {
+  emptyTitle: {
     color: colors.text.primary,
+    fontSize: fontSize.xl,
     fontWeight: fontWeight.bold,
+    marginBottom: spacing.sm,
+  },
+  emptySubtitle: {
+    color: colors.text.secondary,
+    fontSize: fontSize.sm,
+    textAlign: 'center',
   },
 
   // ── Body ──

@@ -42,11 +42,11 @@ class ControllerModule(reactContext: ReactApplicationContext) : NativeController
     override fun initialize() {
         super.initialize()
         Log.d(TAG, "initialize() called")
-        
-        // Auto-install JSI bindings during initialization
-        if (!jsiInstalled) {
-            installJSIBindings()
-        }
+
+        // Always reinstall JSI bindings — handles hot reload where
+        // the JS runtime is recreated but the native module persists
+        jsiInstalled = false
+        installJSIBindings()
     }
 
     private fun installJSIBindings() {

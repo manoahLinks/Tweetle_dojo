@@ -6,8 +6,9 @@ import { LandingScreen } from './src/screens/LandingScreen';
 import { DashboardScreen } from './src/screens/DashboardScreen';
 import { GameBoardScreen } from './src/screens/GameBoardScreen';
 import { LeaderboardScreen } from './src/screens/LeaderboardScreen';
+import { ProfileScreen } from './src/screens/ProfileScreen';
 
-type Screen = 'landing' | 'dashboard' | 'gameboard' | 'leaderboard';
+type Screen = 'landing' | 'dashboard' | 'gameboard' | 'leaderboard' | 'profile';
 export type GameMode = 'classic' | 'daily';
 
 export const NavigationContext = React.createContext<{
@@ -51,6 +52,7 @@ function Router() {
       {currentScreen === 'dashboard' && <DashboardScreen />}
       {currentScreen === 'gameboard' && <GameBoardScreen />}
       {currentScreen === 'leaderboard' && <LeaderboardScreen />}
+      {currentScreen === 'profile' && <ProfileScreen />}
     </NavigationContext.Provider>
   );
 }
@@ -59,11 +61,11 @@ export default function App() {
   return (
     <>
       <StatusBar style="light" />
-      <DojoContextProvider>
-        <SessionProvider>
+      <SessionProvider>
+        <DojoContextProvider>
           <Router />
-        </SessionProvider>
-      </DojoContextProvider>
+        </DojoContextProvider>
+      </SessionProvider>
     </>
   );
 }

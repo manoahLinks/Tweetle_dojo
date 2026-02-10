@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useDojo } from '../dojo/DojoContext';
-import { MASTER_ADDRESS } from '../dojo/dojoConfig';
+import { useSession } from './SessionContext';
 import { stringToFelt, feltToString, decodeHints, WINNING_HINT } from '../dojo/models';
 import {
   pollPlayerRegistered,
@@ -51,17 +51,17 @@ export interface DailyStatus {
 }
 
 export function useGameActions() {
-  const { account, client } = useDojo();
-  const playerAddress = MASTER_ADDRESS;
+  const { client } = useDojo();
+  const { sessionMetadata } = useSession();
+  const playerAddress = sessionMetadata.address!;
 
   const registerPlayer = useCallback(
     async (username: string) => {
       const usernameFelt = stringToFelt(username);
-      await client.playerSystem.register(account, usernameFelt, ZERO_ADDRESS);
-      // Poll Torii until player is indexed
+      await client.playerSystem.register(usernameFelt, ZERO_ADDRESS);
       await pollPlayerRegistered(playerAddress);
     },
-    [account, client, playerAddress]
+    [client, playerAddress]
   );
 
   // ── Classic Mode ──
@@ -69,15 +69,15 @@ export function useGameActions() {
   const startGame = useCallback(async (): Promise<number> => {
     const currentGame = await fetchLatestClassicGame(playerAddress);
     const currentGameId = currentGame?.game_id ?? 0;
-    await client.actions.startGame(account);
+    await client.actions.startGame();
     const newGame = await pollNewClassicGame(playerAddress, currentGameId);
     return newGame.game_id;
-  }, [account, client, playerAddress]);
+  }, [client, playerAddress]);
 
   const submitGuess = useCallback(
     async (gameId: number, word: string, currentAttemptCount: number): Promise<GuessResult> => {
       const wordFelt = stringToFelt(word.toLowerCase());
-      await client.actions.submitGuess(account, gameId, wordFelt);
+      await client.actions.submitGuess(gameId, wordFelt);
       const attempt = await pollNewAttempt(playerAddress, gameId, currentAttemptCount);
 
       const hintPacked = Number(attempt.hint_packed);
@@ -87,7 +87,7 @@ export function useGameActions() {
 
       return { hintPacked, tileStates: decodeHints(hintPacked), isWin, isLoss, attemptNumber };
     },
-    [account, client, playerAddress]
+    [client, playerAddress]
   );
 
   const resumeOrStartGame = useCallback(async (): Promise<ResumedGameState> => {
@@ -136,7 +136,6 @@ export function useGameActions() {
     const gameIdHex = '0x' + gameId.toString(16);
     const expiresAt = (gameId + 1) * SECONDS_PER_DAY;
 
-    // Check if player has an attempt count entry for today's game
     const { data: acData } = await apolloClient.query<GetDailyAttemptCountResponse>({
       query: GET_DAILY_ATTEMPT_COUNT,
       variables: { player: playerAddress, gameId: gameIdHex },
@@ -145,7 +144,6 @@ export function useGameActions() {
 
     const attemptCount = acData?.tweetleDojoDailyAttemptCountModels?.edges?.[0]?.node;
 
-    // Player hasn't joined today's game yet
     if (!attemptCount || !attemptCount.has_joined) {
       return {
         gameId,
@@ -157,7 +155,6 @@ export function useGameActions() {
       };
     }
 
-    // Player joined — fetch attempts to check state
     const { data: attData } = await apolloClient.query<GetDailyAttemptsResponse>({
       query: GET_DAILY_ATTEMPTS,
       variables: { player: playerAddress, gameId: gameIdHex },
@@ -171,7 +168,6 @@ export function useGameActions() {
       return word.split('').map((letter, i) => ({ letter, state: tileStates[i] }));
     });
 
-    // Infer finished state from attempts (no has_finished field until contract redeploy)
     const count = Number(attemptCount.count);
     const lastAttempt = attemptNodes[attemptNodes.length - 1];
     const won = lastAttempt && Number(lastAttempt.hint_packed) === WINNING_HINT;
@@ -191,21 +187,19 @@ export function useGameActions() {
   const startDailyGame = useCallback(async (): Promise<number> => {
     const gameId = getTodayGameId();
 
-    // get_or_create_daily_game
-    await client.dailyGame.getOrCreate(account);
+    await client.dailyGame.getOrCreate();
     await pollDailyGame(gameId);
 
-    // join_daily_game
-    await client.dailyGame.join(account, gameId);
+    await client.dailyGame.join(gameId);
     await pollDailyJoined(playerAddress, gameId);
 
     return gameId;
-  }, [account, client, playerAddress, getTodayGameId]);
+  }, [client, playerAddress, getTodayGameId]);
 
   const submitDailyGuess = useCallback(
     async (gameId: number, word: string, currentAttemptCount: number): Promise<GuessResult> => {
       const wordFelt = stringToFelt(word.toLowerCase());
-      await client.dailyGame.submitGuess(account, gameId, wordFelt);
+      await client.dailyGame.submitGuess(gameId, wordFelt);
       const attempt = await pollNewDailyAttempt(playerAddress, gameId, currentAttemptCount);
 
       const hintPacked = Number(attempt.hint_packed);
@@ -215,7 +209,7 @@ export function useGameActions() {
 
       return { hintPacked, tileStates: decodeHints(hintPacked), isWin, isLoss, attemptNumber };
     },
-    [account, client, playerAddress]
+    [client, playerAddress]
   );
 
   return {

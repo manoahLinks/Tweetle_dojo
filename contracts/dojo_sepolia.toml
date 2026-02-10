@@ -22,7 +22,7 @@ default = "tweetle_dojo"
 rpc_url = ""         # env: STARKNET_RPC_URL
 account_address = "" # env: DOJO_ACCOUNT_ADDRESS
 private_key = ""     # env: DOJO_PRIVATE_KEY
-# world_address = ""
+world_address = "0x45b2841cbd334ae7cb39c89fdea585341b4b7688e215076aede41fc354c3f8d"
 
 [writers]
 "tweetle_dojo" = ["tweetle_dojo-actions", "tweetle_dojo-player_system", "tweetle_dojo-daily_game"]

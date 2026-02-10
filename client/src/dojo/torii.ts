@@ -20,8 +20,8 @@ async function gql<T = any>(query: string, variables?: Record<string, any>): Pro
 
 async function pollTorii<T>(
   queryFn: () => Promise<T | null>,
-  maxAttempts = 20,
-  intervalMs = 150,
+  maxAttempts = 40,
+  intervalMs = 2000,
 ): Promise<T> {
   for (let i = 0; i < maxAttempts; i++) {
     const result = await queryFn();
