@@ -20,6 +20,7 @@ export const GET_PLAYER = gql`
           classic_game_count
           points
           is_registered
+          friends_count
         }
       }
     }
@@ -82,6 +83,83 @@ export const GET_ATTEMPT_COUNT = gql`
     }
   }
 `;
+
+// ── Profile / Stats Queries ──
+
+export const GET_ALL_PLAYER_ATTEMPTS = gql`
+  query GetAllPlayerAttempts($player: String!) {
+    tweetleDojoClassicAttemptModels(
+      where: { player: $player }
+      first: 500
+    ) {
+      edges {
+        node {
+          player
+          game_id
+          attempt_number
+          hint_packed
+        }
+      }
+    }
+  }
+`;
+
+export const GET_ALL_DAILY_ATTEMPT_COUNTS = gql`
+  query GetAllDailyAttemptCounts($player: String!) {
+    tweetleDojoDailyAttemptCountModels(
+      where: { player: $player }
+      first: 500
+    ) {
+      edges {
+        node {
+          player
+          game_id
+          count
+          has_joined
+        }
+      }
+    }
+  }
+`;
+
+export interface GetAllPlayerAttemptsResponse {
+  tweetleDojoClassicAttemptModels: {
+    edges: Array<{ node: Pick<ClassicAttemptNode, 'player' | 'game_id' | 'attempt_number' | 'hint_packed'> }>;
+  };
+}
+
+export interface GetAllDailyAttemptCountsResponse {
+  tweetleDojoDailyAttemptCountModels: {
+    edges: Array<{ node: DailyAttemptCountNode }>;
+  };
+}
+
+// ── Leaderboard Queries ──
+
+export const GET_LEADERBOARD = gql`
+  query GetLeaderboard($first: Int!) {
+    tweetleDojoPlayerModels(
+      where: { is_registered: true }
+      order: { field: POINTS, direction: DESC }
+      first: $first
+    ) {
+      edges {
+        node {
+          address
+          username
+          points
+          classic_game_count
+        }
+      }
+    }
+  }
+`;
+
+export interface GetLeaderboardResponse {
+  tweetleDojoPlayerModels: {
+    edges: Array<{ node: PlayerNode }>;
+  };
+}
 
 // ── Daily Game Queries ──
 
@@ -147,6 +225,7 @@ export interface PlayerNode {
   classic_game_count: number;
   points: number;
   is_registered: boolean;
+  friends_count?: number;
 }
 
 export interface ClassicGameNode {

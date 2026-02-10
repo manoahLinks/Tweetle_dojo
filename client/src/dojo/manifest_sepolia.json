@@ -34,7 +34,7 @@
   "contracts": [
     {
       "address": "0x97b632e93243e3c8fa31ea94580ae1e54f8338015c811b6413455cdeb319b8",
-      "class_hash": "0x7eef03d634d682492a44f4cc6cfd1b6ce61e2f13a8e44f3b1036b56a060887c",
+      "class_hash": "0x63fff3a0822a83857f7fb803e77efe779f488d063515c61f706bd9261503ce8",
       "init_calldata": [],
       "tag": "tweetle_dojo-actions",
       "selector": "0x4d4be89df67278eb302460a60a43d4de8cc152d447e0ca6fe49b37944ac69a8",
@@ -46,7 +46,7 @@
     },
     {
       "address": "0x6b4d457983ca94b1c7ecda18411a01e5c1cbdd96cd4e92b46fd984df9751300",
-      "class_hash": "0x12c97eca5872fdad5965e95336721bad116875fe2c9efcda25c655f5928ca14",
+      "class_hash": "0x54243a2feae30f003b52a78afcd9faf1e038ab14b3292d2aab738ab50937e32",
       "init_calldata": [],
       "tag": "tweetle_dojo-daily_game",
       "selector": "0x29c9d0133d220ca5f6fb759e9f8d5097048f280e5baff14862c6a96c09a2bc1",
@@ -228,9 +228,14 @@
           "name": "has_joined",
           "type": "core::bool",
           "key": false
+        },
+        {
+          "name": "has_finished",
+          "type": "core::bool",
+          "key": false
         }
       ],
-      "class_hash": "0x37a5f03be3b8c7e7b405328245901c372b0c47f0e307bf6d2e99e621691f6d",
+      "class_hash": "0x19b312155f6d1c6675c73454f69db0a19ea3cae75791d24443ba1a670408a58",
       "tag": "tweetle_dojo-DailyAttemptCount",
       "selector": "0x27e54e86ae07274e2603b0ce7d3a3f16b76cb82dbe6ef419290d340c64e005"
     },
@@ -2611,6 +2616,10 @@
         {
           "name": "has_joined",
           "type": "core::bool"
+        },
+        {
+          "name": "has_finished",
+          "type": "core::bool"
         }
       ]
     },
@@ -2624,6 +2633,10 @@
         },
         {
           "name": "has_joined",
+          "type": "core::bool"
+        },
+        {
+          "name": "has_finished",
           "type": "core::bool"
         }
       ]

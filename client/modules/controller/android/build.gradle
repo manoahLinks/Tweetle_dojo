@@ -6,6 +6,7 @@ buildscript {
 
 apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'com.facebook.react'
 
 def reactNativeArchitectures() {
     def value = project.getProperties().get("reactNativeArchitectures")

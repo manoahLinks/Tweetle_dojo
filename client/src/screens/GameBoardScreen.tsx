@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { NavigationContext, type GameMode } from '../../App';
 import { useSession } from '../hooks/SessionContext';
+import { usePlayer } from '../hooks/usePlayer';
 import { useGameActions, type DailyStatus } from '../hooks/useGameActions';
 import { colors, fontSize, fontWeight, spacing, radius, grid } from '../theme';
 
@@ -242,8 +243,8 @@ export function GameBoardScreen() {
   const { goBack, params } = useContext(NavigationContext);
   const mode: GameMode = (params?.mode as GameMode) || 'classic';
   const { sessionMetadata } = useSession();
+  const { player, refetch: refetchPlayer } = usePlayer();
   const {
-    registerPlayer,
     startGame,
     submitGuess,
     resumeOrStartGame,
@@ -263,23 +264,12 @@ export function GameBoardScreen() {
   const currentRow = guesses.length;
   const keyStates = getKeyboardStates(guesses);
 
-  // Register player (if needed) then init game based on mode
+  // Init game based on mode (player registration handled at connect time)
   useEffect(() => {
     let cancelled = false;
     async function init() {
       setIsLoading(true);
       try {
-        // Ensure player is registered
-        const username = sessionMetadata?.username || 'Player';
-        try {
-          await registerPlayer(username);
-        } catch (regErr: any) {
-          const msg = regErr.message?.toLowerCase() || '';
-          if (!msg.includes('already') && !msg.includes('registered')) {
-            throw regErr;
-          }
-        }
-
         if (mode === 'daily') {
           // Check daily game status
           const status = await checkDailyStatus();
@@ -323,7 +313,7 @@ export function GameBoardScreen() {
     }
     init();
     return () => { cancelled = true; };
-  }, [registerPlayer, resumeOrStartGame, checkDailyStatus, startDailyGame, sessionMetadata, mode]);
+  }, [resumeOrStartGame, checkDailyStatus, startDailyGame, mode]);
 
   const handleKeyPress = useCallback(
     (key: string) => {
@@ -353,6 +343,7 @@ export function GameBoardScreen() {
       if (result.isWin) {
         setGameOver('won');
         setWinAttempts(result.attemptNumber);
+        refetchPlayer();
         setTimeout(() => setShowModal(true), 400);
       } else if (result.isLoss) {
         setGameOver('lost');
@@ -363,7 +354,7 @@ export function GameBoardScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentGuess, gameId, isLoading, gameOver, guesses.length, submitGuess, submitDailyGuess, mode]);
+  }, [currentGuess, gameId, isLoading, gameOver, guesses.length, submitGuess, submitDailyGuess, mode, refetchPlayer]);
 
   const handlePlayNext = useCallback(async () => {
     setShowModal(false);
@@ -472,7 +463,7 @@ export function GameBoardScreen() {
 
           <View style={[styles.infoPill, styles.scorePill]}>
             <Text style={styles.pillEmoji}>🪙</Text>
-            <Text style={styles.scoreText}>78900</Text>
+            <Text style={styles.scoreText}>{(player?.points ?? 0).toLocaleString()}</Text>
           </View>
         </View>
       </View>

@@ -1,0 +1,4 @@
+/Users/mano.dev/Library/Android/sdk/cmake/3.22.1/bin/ninja \
+  -C \
+  /Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/android/.cxx/Debug/3s503m4m/arm64-v8a \
+  controller

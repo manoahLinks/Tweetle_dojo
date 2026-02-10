@@ -9,27 +9,13 @@ import {
   Image,
 } from 'react-native';
 import { useSession } from '../hooks/SessionContext';
+import { usePlayer } from '../hooks/usePlayer';
 import { NavigationContext } from '../../App';
 import { colors, fontSize, fontWeight, spacing, radius } from '../theme';
 
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 54 : 36;
 
 const PREVIEW_TILE = 44;
-
-const MOCK = {
-  score: 5769,
-  level: 'Novice',
-  levelIcon: '🏆',
-  streak: 3,
-  dailyWord: ['N', 'E', 'S', 'T', 'L'],
-  dailyTileColors: [
-    colors.tile.correct,
-    colors.tile.absent,
-    colors.tile.correct,
-    colors.tile.present,
-    colors.tile.absent,
-  ],
-};
 
 function truncateAddress(addr: string): string {
   if (!addr || addr.length < 12) return addr || '';
@@ -39,6 +25,7 @@ function truncateAddress(addr: string): string {
 export function DashboardScreen() {
   const { sessionMetadata, isConnected, disconnect } = useSession();
   const { navigate, goBack } = useContext(NavigationContext);
+  const { player } = usePlayer();
 
   return (
     <View style={styles.container}>
@@ -88,23 +75,23 @@ export function DashboardScreen() {
             <View style={styles.scorePill}>
               <Text style={styles.coinIcon}>🪙</Text>
               <Text style={styles.scoreValue}>
-                {MOCK.score.toLocaleString()}
+                {(player?.points ?? 0).toLocaleString()}
               </Text>
             </View>
           </View>
 
           <View style={styles.badgesRow}>
             <View style={styles.badge}>
-              <Text style={styles.badgeIcon}>{MOCK.levelIcon}</Text>
+              <Text style={styles.badgeIcon}>{player?.levelIcon ?? '🥚'}</Text>
               <Text style={styles.badgeLabel}>Level</Text>
             </View>
             <View style={styles.badge}>
-              <Text style={styles.badgeIcon}>🐣</Text>
-              <Text style={styles.badgeLabel}>{MOCK.level}</Text>
+              <Text style={styles.badgeIcon}>🎯</Text>
+              <Text style={styles.badgeLabel}>{player?.classicGameCount ?? 0} Games</Text>
             </View>
             <View style={styles.badge}>
-              <Text style={styles.badgeIcon}>⋯</Text>
-              <Text style={styles.badgeLabel}>More</Text>
+              <Text style={styles.badgeIcon}>🐣</Text>
+              <Text style={styles.badgeLabel}>{player?.levelTitle ?? 'Hatchling'}</Text>
             </View>
           </View>
         </View>
@@ -144,15 +131,12 @@ export function DashboardScreen() {
           <Text style={styles.dailyTitle}>Today's Daily Challenge</Text>
 
           <View style={styles.previewRow}>
-            {MOCK.dailyWord.map((letter, i) => (
+            {[0, 1, 2, 3, 4].map((i) => (
               <View
                 key={i}
-                style={[
-                  styles.previewTile,
-                  { backgroundColor: MOCK.dailyTileColors[i] },
-                ]}
+                style={[styles.previewTile, { backgroundColor: colors.tile.empty }]}
               >
-                <Text style={styles.previewLetter}>{letter}</Text>
+                <Text style={styles.previewLetter}>?</Text>
               </View>
             ))}
           </View>
@@ -184,9 +168,9 @@ export function DashboardScreen() {
           <Text style={styles.tabIcon}>📊</Text>
           <Text style={styles.tabLabel}>Leaderboard</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.tab}>
-          <Text style={styles.tabIcon}>👥</Text>
-          <Text style={styles.tabLabel}>Friends</Text>
+        <TouchableOpacity style={styles.tab} onPress={() => navigate('profile')}>
+          <Text style={styles.tabIcon}>👤</Text>
+          <Text style={styles.tabLabel}>Profile</Text>
         </TouchableOpacity>
       </View>
     </View>
