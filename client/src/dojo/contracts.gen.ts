@@ -54,80 +54,76 @@ function toFelt(value: BigNumberish): string {
 }
 
 export function setupWorld(sessionAccount: SessionAccountInterface) {
+  // Wrap executeFromOutside with detailed error logging
+  function exec(calls: Array<{ contractAddress: string; entrypoint: string; calldata: string[] }>) {
+    console.log('[Contract] executeFromOutside:', JSON.stringify(calls));
+    try {
+      const result = sessionAccount.executeFromOutside(calls);
+      console.log('[Contract] Success, tx:', result);
+      return result;
+    } catch (error: any) {
+      console.error('[Contract] RAW ERROR:', error);
+      console.error('[Contract] Error message:', error?.message);
+      console.error('[Contract] Error tag:', error?.tag);
+      console.error('[Contract] Error type:', error?.constructor?.name);
+      throw new Error(parseContractError(error));
+    }
+  }
+
   // ── actions ──
 
   const actions_startGame = async () => {
-    try {
-      return sessionAccount.executeFromOutside([
-        { contractAddress: ACTIONS_CONTRACT, entrypoint: 'start_game', calldata: [] },
-      ]);
-    } catch (error) {
-      throw new Error(parseContractError(error));
-    }
+    return exec([
+      { contractAddress: ACTIONS_CONTRACT, entrypoint: 'start_game', calldata: [] },
+    ]);
   };
 
   const actions_submitGuess = async (
     gameId: BigNumberish,
     word: BigNumberish
   ) => {
-    try {
-      return sessionAccount.executeFromOutside([
-        {
-          contractAddress: ACTIONS_CONTRACT,
-          entrypoint: 'submit_guess',
-          calldata: [toFelt(gameId), toFelt(word)],
-        },
-      ]);
-    } catch (error) {
-      throw new Error(parseContractError(error));
-    }
+    return exec([
+      {
+        contractAddress: ACTIONS_CONTRACT,
+        entrypoint: 'submit_guess',
+        calldata: [toFelt(gameId), toFelt(word)],
+      },
+    ]);
   };
 
   // ── daily_game ──
 
   const dailyGame_getOrCreate = async () => {
-    try {
-      return sessionAccount.executeFromOutside([
-        {
-          contractAddress: DAILY_GAME_CONTRACT,
-          entrypoint: 'get_or_create_daily_game',
-          calldata: [],
-        },
-      ]);
-    } catch (error) {
-      throw new Error(parseContractError(error));
-    }
+    return exec([
+      {
+        contractAddress: DAILY_GAME_CONTRACT,
+        entrypoint: 'get_or_create_daily_game',
+        calldata: [],
+      },
+    ]);
   };
 
   const dailyGame_join = async (gameId: BigNumberish) => {
-    try {
-      return sessionAccount.executeFromOutside([
-        {
-          contractAddress: DAILY_GAME_CONTRACT,
-          entrypoint: 'join_daily_game',
-          calldata: [toFelt(gameId)],
-        },
-      ]);
-    } catch (error) {
-      throw new Error(parseContractError(error));
-    }
+    return exec([
+      {
+        contractAddress: DAILY_GAME_CONTRACT,
+        entrypoint: 'join_daily_game',
+        calldata: [toFelt(gameId)],
+      },
+    ]);
   };
 
   const dailyGame_submitGuess = async (
     gameId: BigNumberish,
     word: BigNumberish
   ) => {
-    try {
-      return sessionAccount.executeFromOutside([
-        {
-          contractAddress: DAILY_GAME_CONTRACT,
-          entrypoint: 'submit_daily_guess',
-          calldata: [toFelt(gameId), toFelt(word)],
-        },
-      ]);
-    } catch (error) {
-      throw new Error(parseContractError(error));
-    }
+    return exec([
+      {
+        contractAddress: DAILY_GAME_CONTRACT,
+        entrypoint: 'submit_daily_guess',
+        calldata: [toFelt(gameId), toFelt(word)],
+      },
+    ]);
   };
 
   // ── player_system ──
@@ -136,17 +132,13 @@ export function setupWorld(sessionAccount: SessionAccountInterface) {
     username: BigNumberish,
     referrer: BigNumberish
   ) => {
-    try {
-      return sessionAccount.executeFromOutside([
-        {
-          contractAddress: PLAYER_SYSTEM_CONTRACT,
-          entrypoint: 'register_player',
-          calldata: [toFelt(username), toFelt(referrer)],
-        },
-      ]);
-    } catch (error) {
-      throw new Error(parseContractError(error));
-    }
+    return exec([
+      {
+        contractAddress: PLAYER_SYSTEM_CONTRACT,
+        entrypoint: 'register_player',
+        calldata: [toFelt(username), toFelt(referrer)],
+      },
+    ]);
   };
 
   return {

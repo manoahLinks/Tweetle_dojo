@@ -59,11 +59,16 @@ async function ensurePlayerRegistered(
     console.log('[Session] Player registered successfully');
   } catch (e: any) {
     const msg = (e?.message || '').toLowerCase();
-    // Ignore "already registered" — race condition with Torii indexing
-    if (!msg.includes('already') && !msg.includes('registered')) {
+    // "session/not-registered" contains "registered" — don't swallow it!
+    if (msg.includes('session/not-registered')) {
       throw e;
     }
-    console.log('[Session] Player was already registered (caught)');
+    // Ignore "player already registered" — race condition with Torii indexing
+    if (msg.includes('already') || msg.includes('player') && msg.includes('registered')) {
+      console.log('[Session] Player was already registered (caught)');
+      return;
+    }
+    throw e;
   }
 }
 
@@ -193,7 +198,7 @@ export const useSessionManager = () => {
         dismissButtonStyle: 'cancel',
       });
 
-      // Wait for the deep link redirect
+      // Wait for the deep link redirect — tells us the user approved
       console.log('[Session] Waiting for session approval via redirect...');
       const redirectUrl = await deepLinkPromise;
       console.log('[Session] Got redirect:', redirectUrl);
@@ -201,42 +206,49 @@ export const useSessionManager = () => {
       // Close the in-app browser
       WebBrowser.dismissBrowser();
 
-      // Parse session data from the redirect URL
+      // Parse redirect data for metadata (username etc.)
       const url = new URL(redirectUrl);
       const sessionParam = url.searchParams.get(REDIRECT_QUERY_NAME);
-      if (!sessionParam) {
-        throw new Error('No session data in redirect URL');
+      let redirectUsername = 'Player';
+      let redirectAddress = '';
+      if (sessionParam) {
+        try {
+          const sessionData = decodeSessionResponse(sessionParam);
+          console.log('[Session] Redirect data:', {
+            username: sessionData.username,
+            address: sessionData.address,
+          });
+          redirectUsername = sessionData.username ?? 'Player';
+          redirectAddress = sessionData.address ?? '';
+        } catch (e) {
+          console.warn('[Session] Could not decode redirect data:', e);
+        }
       }
 
-      const sessionData = decodeSessionResponse(sessionParam);
-      console.log('[Session] Session data:', {
-        username: sessionData.username,
-        address: sessionData.address,
-        expiresAt: sessionData.expiresAt,
-      });
-
-      // Construct SessionAccount directly with the redirect data
-      const session = new SessionAccount(
-        RPC_URL,
+      // Now call createFromSubscribe — the session already exists on the
+      // Cartridge backend so this should return very quickly. This gives
+      // us the authorization signature needed for executeFromOutside.
+      console.log('[Session] Calling createFromSubscribe to get auth signature...');
+      const session = SessionAccount.createFromSubscribe(
         privateKey,
-        sessionData.address,
-        sessionData.ownerGuid,
-        CHAIN_ID,
         policies,
-        BigInt(sessionData.expiresAt)
+        RPC_URL,
+        CARTRIDGE_API_URL
       );
-      console.log('[Session] SessionAccount created from redirect data');
+      console.log('[Session] SessionAccount created with full auth data');
+
+      const address = session.address();
+      const username = session.username() ?? redirectUsername;
 
       // Auto-register player on-chain using the Cartridge username
-      const username = sessionData.username ?? 'Player';
       await ensurePlayerRegistered(session, username);
 
       setSessionAccount(session);
       setSessionMetadata({
-        username: sessionData.username ?? undefined,
-        address: sessionData.address,
-        ownerGuid: sessionData.ownerGuid,
-        expiresAt: Number(sessionData.expiresAt),
+        username,
+        address: address || redirectAddress,
+        ownerGuid: session.ownerGuid(),
+        expiresAt: Number(session.expiresAt()),
         isRevoked: false,
       });
     } catch (e: any) {
