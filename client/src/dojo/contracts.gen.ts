@@ -58,7 +58,7 @@ export function setupWorld(sessionAccount: SessionAccountInterface) {
 
   const actions_startGame = async () => {
     try {
-      return sessionAccount.execute([
+      return sessionAccount.executeFromOutside([
         { contractAddress: ACTIONS_CONTRACT, entrypoint: 'start_game', calldata: [] },
       ]);
     } catch (error) {
@@ -71,7 +71,7 @@ export function setupWorld(sessionAccount: SessionAccountInterface) {
     word: BigNumberish
   ) => {
     try {
-      return sessionAccount.execute([
+      return sessionAccount.executeFromOutside([
         {
           contractAddress: ACTIONS_CONTRACT,
           entrypoint: 'submit_guess',
@@ -87,7 +87,7 @@ export function setupWorld(sessionAccount: SessionAccountInterface) {
 
   const dailyGame_getOrCreate = async () => {
     try {
-      return sessionAccount.execute([
+      return sessionAccount.executeFromOutside([
         {
           contractAddress: DAILY_GAME_CONTRACT,
           entrypoint: 'get_or_create_daily_game',
@@ -101,7 +101,7 @@ export function setupWorld(sessionAccount: SessionAccountInterface) {
 
   const dailyGame_join = async (gameId: BigNumberish) => {
     try {
-      return sessionAccount.execute([
+      return sessionAccount.executeFromOutside([
         {
           contractAddress: DAILY_GAME_CONTRACT,
           entrypoint: 'join_daily_game',
@@ -118,7 +118,7 @@ export function setupWorld(sessionAccount: SessionAccountInterface) {
     word: BigNumberish
   ) => {
     try {
-      return sessionAccount.execute([
+      return sessionAccount.executeFromOutside([
         {
           contractAddress: DAILY_GAME_CONTRACT,
           entrypoint: 'submit_daily_guess',
@@ -137,7 +137,7 @@ export function setupWorld(sessionAccount: SessionAccountInterface) {
     referrer: BigNumberish
   ) => {
     try {
-      return sessionAccount.execute([
+      return sessionAccount.executeFromOutside([
         {
           contractAddress: PLAYER_SYSTEM_CONTRACT,
           entrypoint: 'register_player',
