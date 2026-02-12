@@ -1,11 +1,11 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { Linking } from 'react-native';
+import { useState, useCallback } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-get-random-values';
 import {
   SessionAccount,
   getPublicKey,
+  signerToGuid,
   type SessionAccountInterface,
   type SessionPolicies,
   isNativeModuleAvailable,
@@ -21,8 +21,7 @@ import { fetchPlayer, pollPlayerRegistered } from '../dojo/torii';
 const STORAGE_KEY = '@tweetle/session_private_key';
 const CARTRIDGE_SESSION_URL = 'https://x.cartridge.gg/session';
 const REDIRECT_URI = 'tweetledojo://session';
-const REDIRECT_QUERY_NAME = 'session';
-const CHAIN_ID = '0x534e5f5345504f4c4941'; // SN_SEPOLIA
+const SN_SEPOLIA = '0x534e5f5345504f4c4941';
 
 function stringToFelt(s: string): string {
   let val = BigInt(0);
@@ -39,7 +38,6 @@ async function ensurePlayerRegistered(
 ): Promise<void> {
   const address = session.address();
 
-  // Check Torii first — skip if already registered
   const existing = await fetchPlayer(address);
   if (existing?.is_registered) {
     console.log('[Session] Player already registered, skipping');
@@ -59,12 +57,8 @@ async function ensurePlayerRegistered(
     console.log('[Session] Player registered successfully');
   } catch (e: any) {
     const msg = (e?.message || '').toLowerCase();
-    // "session/not-registered" contains "registered" — don't swallow it!
-    if (msg.includes('session/not-registered')) {
-      throw e;
-    }
-    // Ignore "player already registered" — race condition with Torii indexing
-    if (msg.includes('already') || msg.includes('player') && msg.includes('registered')) {
+    if (msg.includes('session/not-registered')) throw e;
+    if (msg.includes('already') || (msg.includes('player') && msg.includes('registered'))) {
       console.log('[Session] Player was already registered (caught)');
       return;
     }
@@ -94,18 +88,73 @@ async function getOrCreatePrivateKey(): Promise<string> {
   return key;
 }
 
-/** Decode the base64 session response from Cartridge redirect */
-function decodeSessionResponse(encoded: string): {
-  username: string;
+/** Call subscribeCreateSession via JavaScript fetch (long-polls until session created). */
+async function subscribeSessionFromJS(
+  sessionKeyGuid: string
+): Promise<{
+  authorization: string[];
   address: string;
-  ownerGuid: string;
+  username: string;
+  chainId: string;
   expiresAt: string;
-} {
-  // Cartridge strips trailing '=' padding for Telegram compat — re-pad
-  const padded = encoded + '='.repeat((4 - (encoded.length % 4)) % 4);
-  const json = atob(padded);
-  console.log('[Session] Decoded session data:', json);
-  return JSON.parse(json);
+  ownerGuid: string;
+}> {
+  console.log('[Session] JS subscription: calling subscribeCreateSession...');
+  console.log('[Session] sessionKeyGuid:', sessionKeyGuid);
+
+  const resp = await fetch(`${CARTRIDGE_API_URL}/query`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: `query SubscribeSession($guid: Felt!) {
+        subscribeCreateSession(sessionKeyGuid: $guid) {
+          authorization
+          expiresAt
+          chainID
+          controller {
+            address
+            constructorCalldata
+            account {
+              username
+            }
+          }
+        }
+      }`,
+      variables: { guid: sessionKeyGuid },
+    }),
+  });
+
+  const json = await resp.json();
+  console.log('[Session] JS subscription response:', JSON.stringify(json));
+
+  if (json.errors) {
+    throw new Error(`GraphQL error: ${JSON.stringify(json.errors)}`);
+  }
+
+  const session = json.data.subscribeCreateSession;
+  const address = session.controller.address;
+  const username = session.controller.account?.username ?? 'Player';
+  const chainId = session.chainID;
+  const expiresAt = String(session.expiresAt);
+  const authorization = session.authorization;
+
+  // The ownerGuid is typically the first element of constructorCalldata
+  // (it's the class_hash or owner credential stored at deployment)
+  const calldata = session.controller.constructorCalldata;
+  let ownerGuid = '0x0';
+  if (calldata && calldata.length > 0) {
+    ownerGuid = calldata[0];
+  }
+
+  console.log('[Session] JS subscription got session:');
+  console.log('[Session]   address:', address);
+  console.log('[Session]   username:', username);
+  console.log('[Session]   chainId:', chainId);
+  console.log('[Session]   expiresAt:', expiresAt);
+  console.log('[Session]   authorization length:', authorization.length);
+  console.log('[Session]   ownerGuid (from calldata):', ownerGuid);
+
+  return { authorization, address, username, chainId, expiresAt, ownerGuid };
 }
 
 export interface SessionMetadata {
@@ -113,8 +162,6 @@ export interface SessionMetadata {
   address?: string;
   ownerGuid?: string;
   expiresAt?: number;
-  sessionId?: string;
-  appId?: string;
   isRevoked: boolean;
 }
 
@@ -128,24 +175,7 @@ export const useSessionManager = () => {
   const [error, setError] = useState<string | null>(null);
   const [publicKey, setPublicKey] = useState('');
 
-  // Resolve function for the deep link promise — set during connect()
-  const resolveDeepLink = useRef<((url: string) => void) | null>(null);
-
   const isConnected = !!sessionAccount;
-
-  // Listen for deep link redirects from the Cartridge session page
-  useEffect(() => {
-    const handleDeepLink = (event: { url: string }) => {
-      console.log('[Session] Deep link received:', event.url);
-      if (event.url.startsWith(REDIRECT_URI) && resolveDeepLink.current) {
-        resolveDeepLink.current(event.url);
-        resolveDeepLink.current = null;
-      }
-    };
-
-    const sub = Linking.addEventListener('url', handleDeepLink);
-    return () => sub.remove();
-  }, []);
 
   const connect = useCallback(async () => {
     if (!isNativeModuleAvailable) {
@@ -166,9 +196,13 @@ export const useSessionManager = () => {
       console.log('[Session] Public key:', pubKey);
       setPublicKey(pubKey);
 
+      // Compute session key GUID from public key
+      const sessionKeyGuid = signerToGuid(pubKey);
+      console.log('[Session] Session key GUID:', sessionKeyGuid);
+
       const policies = buildPolicies();
 
-      // Build the session URL with redirect_uri so the browser comes back
+      // Build session URL for the browser
       const policiesParam = JSON.stringify(
         policies.policies.map((p) => ({
           target: p.contractAddress,
@@ -181,79 +215,71 @@ export const useSessionManager = () => {
         policies: policiesParam,
         rpc_url: RPC_URL,
         redirect_uri: REDIRECT_URI,
-        redirect_query_name: REDIRECT_QUERY_NAME,
       });
       const sessionUrl = `${CARTRIDGE_SESSION_URL}?${params.toString()}`;
-      console.log('[Session] Opening URL:', sessionUrl);
 
-      // Create a promise that resolves when the deep link fires
-      const deepLinkPromise = new Promise<string>((resolve) => {
-        resolveDeepLink.current = resolve;
-      });
+      // Start the JS-side GraphQL subscription (long-polls until session created).
+      // This replaces the Rust createFromSubscribe which fails with connection
+      // reset on Android. JavaScript's fetch uses Android's native HTTP stack
+      // which handles DNS and TLS properly.
+      const subscribePromise = subscribeSessionFromJS(sessionKeyGuid);
 
-      // Open in-app browser — user approves, Cartridge redirects to our
-      // deep link which fires the Linking listener above.
-      console.log('[Session] Opening in-app browser...');
+      // Open browser for the user to approve the session.
+      console.log('[Session] Opening browser for session approval...');
       WebBrowser.openBrowserAsync(sessionUrl, {
         dismissButtonStyle: 'cancel',
       });
 
-      // Wait for the deep link redirect — tells us the user approved
-      console.log('[Session] Waiting for session approval via redirect...');
-      const redirectUrl = await deepLinkPromise;
-      console.log('[Session] Got redirect:', redirectUrl);
+      // Wait for the JS subscription to return session data.
+      const sessionData = await subscribePromise;
+      console.log('[Session] Session data received from JS subscription!');
 
-      // Close the in-app browser
+      // Close browser now that we have the session
       WebBrowser.dismissBrowser();
 
-      // Parse redirect data for metadata (username etc.)
-      const url = new URL(redirectUrl);
-      const sessionParam = url.searchParams.get(REDIRECT_QUERY_NAME);
-      let redirectUsername = 'Player';
-      let redirectAddress = '';
-      if (sessionParam) {
-        try {
-          const sessionData = decodeSessionResponse(sessionParam);
-          console.log('[Session] Redirect data:', {
-            username: sessionData.username,
-            address: sessionData.address,
-          });
-          redirectUsername = sessionData.username ?? 'Player';
-          redirectAddress = sessionData.address ?? '';
-        } catch (e) {
-          console.warn('[Session] Could not decode redirect data:', e);
-        }
-      }
+      // Determine ownerGuid: from GraphQL constructorCalldata or compute from redirect
+      let ownerGuid = sessionData.ownerGuid;
+      const chainId = sessionData.chainId || SN_SEPOLIA;
+      const expiresAt = BigInt(sessionData.expiresAt);
 
-      // Now call createFromSubscribe — the session already exists on the
-      // Cartridge backend so this should return very quickly. This gives
-      // us the authorization signature needed for executeFromOutside.
-      console.log('[Session] Calling createFromSubscribe to get auth signature...');
-      const session = SessionAccount.createFromSubscribe(
-        privateKey,
-        policies,
+      console.log('[Session] Creating SessionAccount...');
+      console.log('[Session]   address:', sessionData.address);
+      console.log('[Session]   ownerGuid:', ownerGuid);
+      console.log('[Session]   chainId:', chainId);
+      console.log('[Session]   expiresAt:', expiresAt.toString());
+
+      // Create SessionAccount from the data we got.
+      // If subscribeCreateSession triggered on-chain registration, executeFromOutside
+      // will work because is_session_registered returns true.
+      const session = new SessionAccount(
         RPC_URL,
-        CARTRIDGE_API_URL
+        privateKey,
+        sessionData.address,
+        ownerGuid,
+        chainId,
+        policies,
+        expiresAt
       );
-      console.log('[Session] SessionAccount created with full auth data');
+      console.log('[Session] SessionAccount created!');
 
       const address = session.address();
-      const username = session.username() ?? redirectUsername;
+      const username = sessionData.username;
+      console.log('[Session] Address:', address, 'Username:', username);
 
-      // Auto-register player on-chain using the Cartridge username
+      // Auto-register player on-chain
       await ensurePlayerRegistered(session, username);
 
       setSessionAccount(session);
       setSessionMetadata({
         username,
-        address: address || redirectAddress,
-        ownerGuid: session.ownerGuid(),
-        expiresAt: Number(session.expiresAt()),
+        address,
+        ownerGuid,
+        expiresAt: Number(expiresAt),
         isRevoked: false,
       });
     } catch (e: any) {
       const msg = e?.message || String(e);
-      console.error('[Session] Error:', msg, e);
+      console.error('[Session] Error:', msg);
       setError(msg);
     } finally {
       setIsLoading(false);
