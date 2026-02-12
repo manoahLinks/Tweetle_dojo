@@ -1,3 +1,0 @@
-/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/android/.cxx/Debug/3s503m4m/arm64-v8a/CMakeFiles/controller.dir
-/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/android/.cxx/Debug/3s503m4m/arm64-v8a/CMakeFiles/edit_cache.dir
-/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/android/.cxx/Debug/3s503m4m/arm64-v8a/CMakeFiles/rebuild_cache.dir

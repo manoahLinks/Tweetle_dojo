@@ -1,7 +1,0 @@
-# ninja log v5
-0	2410	1770590296901822441	CMakeFiles/controller.dir/cpp-adapter.cpp.o	f38609217fadd672
-2	2479	1770590296973030236	CMakeFiles/controller.dir/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/cpp/controller.cpp.o	c6c233997159aab6
-3	18723	1770590313161162662	CMakeFiles/controller.dir/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/cpp/generated/controller.cpp.o	e4b7995ec26ab3b
-18724	18992	1770590313478297410	../../../../build/intermediates/cxx/Debug/3s503m4m/obj/arm64-v8a/libcontroller.so	7989dcc98172550d
-8	3571	1770592562728346207	CMakeFiles/controller.dir/cpp-adapter.cpp.o	f38609217fadd672
-3572	4061	1770592563194947070	../../../../build/intermediates/cxx/Debug/3s503m4m/obj/arm64-v8a/libcontroller.so	7989dcc98172550d

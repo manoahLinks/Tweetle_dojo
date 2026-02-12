@@ -39,3 +39,12 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Native module build artifacts (never commit these)
+modules/controller/android/build/
+modules/controller/android/.cxx/
+modules/controller/android/.gradle/
+
+# Pre-built native binaries — use Git LFS for these
+# modules/controller/Controller.xcframework/
+# modules/controller/android/src/main/jniLibs/

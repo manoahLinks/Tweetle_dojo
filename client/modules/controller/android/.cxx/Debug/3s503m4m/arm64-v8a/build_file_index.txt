@@ -1,5 +1,0 @@
-/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/android/.cxx/Debug/3s503m4m/prefab/arm64-v8a/prefab/lib/aarch64-linux-android/cmake/ReactAndroid/ReactAndroidConfig.cmake
-/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/android/.cxx/Debug/3s503m4m/prefab/arm64-v8a/prefab/lib/aarch64-linux-android/cmake/ReactAndroid/ReactAndroidConfigVersion.cmake
-/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/android/.cxx/Debug/3s503m4m/prefab/arm64-v8a/prefab/lib/aarch64-linux-android/cmake/fbjni/fbjniConfig.cmake
-/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/android/.cxx/Debug/3s503m4m/prefab/arm64-v8a/prefab/lib/aarch64-linux-android/cmake/fbjni/fbjniConfigVersion.cmake
-/Users/mano.dev/localrepos/dojoWorld/tweetle_dojo/client/modules/controller/android/CMakeLists.txt
