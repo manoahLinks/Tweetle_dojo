@@ -8,6 +8,10 @@ import {
   MASTER_ADDRESS,
   MASTER_PRIVATE_KEY,
 } from './dojoConfig';
+import { stringToFelt } from './models';
+import { fetchPlayer, pollPlayerRegistered } from './apollo';
+
+const HARDCODED_USERNAME = 'tweetler';
 
 export interface DojoContextValue {
   account: AccountInterface | null;
@@ -52,6 +56,26 @@ export function useDojo(): DojoContextValue {
 
         setAccount(masterAccount);
         setClient(worldClient);
+
+        // Auto-register player on local Katana with hardcoded username
+        try {
+          const existing = await fetchPlayer(masterAccount.address);
+          if (!existing || !existing.is_registered) {
+            console.log('[Dojo] Auto-registering player as:', HARDCODED_USERNAME);
+            const usernameFelt = stringToFelt(HARDCODED_USERNAME);
+            await worldClient.player_system.registerPlayer(
+              masterAccount,
+              usernameFelt,
+              '0x0',
+            );
+            await pollPlayerRegistered(masterAccount.address);
+            console.log('[Dojo] Player registered successfully');
+          } else {
+            console.log('[Dojo] Player already registered, skipping');
+          }
+        } catch (regErr) {
+          console.warn('[Dojo] Auto-registration failed (may already be registered):', regErr);
+        }
       } catch (err) {
         console.error('Failed to initialize Dojo:', err);
         setError(err instanceof Error ? err : new Error(String(err)));
