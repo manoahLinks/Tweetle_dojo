@@ -34,44 +34,15 @@ export function useDojo(): DojoContextValue {
           signer: MASTER_PRIVATE_KEY,
         });
 
-        // Patch for Hermes (React Native) — BigInt crash workarounds.
-        // starknet.js v8 uses BigInt internally for nonce arithmetic and fee
-        // estimation. Hermes cannot convert BigInt → Number, so we must bypass
-        // every code-path that triggers that conversion.
-
-        const ZERO_BOUNDS = {
-          l1_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
-          l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
-          l1_data_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
-        };
-
-        // 1) resolveDetailsWithTip → getEstimateTip → scans blocks → BigInt crash
+        // BigInt → Number conversion is handled globally by
+        // src/polyfills/bigint-number.ts (loaded in index.ts).
+        //
+        // Skip tip estimation — Katana has no fees and too few txs for
+        // getEstimateTip to work (it scans blocks and warns on insufficient data).
         (masterAccount as any).resolveDetailsWithTip = async (details: any) => ({
           ...details,
           tip: details.tip ?? 0,
         });
-
-        // 2) estimateInvokeFee → BigInt crash
-        (masterAccount as any).estimateInvokeFee = async () => ({
-          resourceBounds: ZERO_BOUNDS,
-        });
-
-        // 3) accountInvocationsFactory does toBigInt(Number(nonce)) → BigInt crash.
-        //    getNonceSafe returns a BigInt, then Number(bigint) crashes Hermes.
-        //    Patch getNonceSafe to return a plain JS number instead of BigInt.
-        (masterAccount as any).getNonceSafe = async (nonce?: any) => {
-          if (nonce !== undefined && nonce !== null) {
-            return typeof nonce === 'number' ? nonce : parseInt(String(nonce), 16) || 0;
-          }
-          const nonceHex: string = await rpcProvider.getNonceForAddress(MASTER_ADDRESS);
-          return parseInt(nonceHex, 16) || 0;
-        };
-
-        // 4) getChainId may also return BigInt in some paths — ensure it returns a string.
-        (masterAccount as any).getChainId = async () => {
-          const chainId = await rpcProvider.getChainId();
-          return chainId;
-        };
 
         const dojoProvider = new DojoProvider(
           dojoConfig.manifest,

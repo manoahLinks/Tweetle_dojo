@@ -1,3 +1,6 @@
+// Must be first — patches Number() to handle BigInt on Hermes
+import './src/polyfills/bigint-number';
+
 import { registerRootComponent } from 'expo';
 
 import App from './App';
