@@ -18,6 +18,8 @@
     "@react-navigation/stack": "^7.7.1",
     "controller-native": "link:modules/controller",
     "expo": "~54.0.33",
+    "expo-font": "^14.0.11",
+    "expo-linear-gradient": "^15.0.8",
     "expo-linking": "^8.0.11",
     "expo-status-bar": "~3.0.9",
     "expo-web-browser": "^15.0.10",

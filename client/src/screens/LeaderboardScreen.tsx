@@ -17,7 +17,8 @@ import {
   GET_LEADERBOARD,
   type GetLeaderboardResponse,
 } from '../dojo/apollo';
-import { colors, fontSize, fontWeight, spacing, radius } from '../theme';
+import { colors, fontSize, fontWeight, spacing, radius, fontFamily } from '../theme';
+import { TabBar } from '../components/TabBar';
 
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 54 : 36;
 
@@ -207,21 +208,7 @@ export function LeaderboardScreen() {
         </ScrollView>
       )}
 
-      {/* Bottom tab bar */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.bottomTab} onPress={() => navigate('dashboard')}>
-          <Text style={styles.bottomTabIcon}>🏠</Text>
-          <Text style={styles.bottomTabLabel}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomTab}>
-          <Text style={styles.bottomTabIconActive}>📊</Text>
-          <Text style={styles.bottomTabLabelActive}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomTab} onPress={() => navigate('profile')}>
-          <Text style={styles.bottomTabIcon}>👤</Text>
-          <Text style={styles.bottomTabLabel}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      <TabBar activeTab="leaderboard" onNavigate={(tab) => navigate(tab as any)} />
     </View>
   );
 }
@@ -235,7 +222,7 @@ const styles = StyleSheet.create({
 
   // ── Header ──
   header: {
-    backgroundColor: colors.brand.secondary,
+    backgroundColor: colors.bg.surface,
     paddingHorizontal: spacing.base,
     paddingTop: spacing.sm,
     paddingBottom: spacing.base,
@@ -252,14 +239,14 @@ const styles = StyleSheet.create({
     width: 50,
   },
   backText: {
-    color: colors.info,
+    color: colors.brand.primary,
     fontSize: fontSize.sm,
     fontWeight: fontWeight.medium,
   },
   headerTitle: {
     color: colors.text.primary,
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
+    fontFamily: fontFamily.heading,
     textAlign: 'center',
   },
 
@@ -397,7 +384,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.bg.surfaceLight,
   },
   playerRowHighlight: {
-    backgroundColor: '#F646E412',
+    backgroundColor: 'rgba(0,229,204,0.08)',
     borderLeftWidth: 3,
     borderLeftColor: colors.brand.primary,
   },
@@ -454,34 +441,4 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
 
-  // ── Bottom Bar ──
-  bottomBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.bg.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.bg.surfaceLight,
-    paddingVertical: spacing.sm,
-    paddingBottom: Platform.OS === 'ios' ? spacing.xl : spacing.base,
-  },
-  bottomTab: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 2,
-  },
-  bottomTabIcon: {
-    fontSize: 20,
-    opacity: 0.5,
-  },
-  bottomTabIconActive: {
-    fontSize: 20,
-  },
-  bottomTabLabel: {
-    color: colors.text.muted,
-    fontSize: fontSize.xs,
-  },
-  bottomTabLabelActive: {
-    color: colors.text.primary,
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.medium,
-  },
 });

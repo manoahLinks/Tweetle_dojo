@@ -18,7 +18,8 @@ import {
   type GetAllPlayerAttemptsResponse,
   type GetAllDailyAttemptCountsResponse,
 } from '../dojo/apollo';
-import { colors, fontSize, fontWeight, spacing, radius } from '../theme';
+import { colors, fontSize, fontWeight, spacing, radius, fontFamily } from '../theme';
+import { TabBar } from '../components/TabBar';
 
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 54 : 36;
 const WIN_HINT = 682; // all 5 letters correct
@@ -276,21 +277,7 @@ export function ProfileScreen() {
         </ScrollView>
       )}
 
-      {/* Bottom tab bar */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.bottomTab} onPress={() => navigate('dashboard')}>
-          <Text style={styles.bottomTabIcon}>🏠</Text>
-          <Text style={styles.bottomTabLabel}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomTab} onPress={() => navigate('leaderboard')}>
-          <Text style={styles.bottomTabIcon}>📊</Text>
-          <Text style={styles.bottomTabLabel}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomTab}>
-          <Text style={styles.bottomTabIconActive}>👤</Text>
-          <Text style={styles.bottomTabLabelActive}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      <TabBar activeTab="profile" onNavigate={(tab) => navigate(tab as any)} />
     </View>
   );
 }
@@ -304,7 +291,7 @@ const styles = StyleSheet.create({
 
   // ── Header ──
   header: {
-    backgroundColor: colors.brand.secondary,
+    backgroundColor: colors.bg.surface,
     paddingHorizontal: spacing.base,
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
@@ -315,7 +302,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.text.primary,
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
+    fontFamily: fontFamily.heading,
   },
 
   // ── Loading ──
@@ -357,7 +344,7 @@ const styles = StyleSheet.create({
   username: {
     color: colors.text.primary,
     fontSize: fontSize['2xl'],
-    fontWeight: fontWeight.bold,
+    fontFamily: fontFamily.heading,
     marginBottom: spacing.sm,
   },
   addressPill: {
@@ -480,7 +467,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   xpBarFill: {
-    height: '100%',
+    height: '100%' as any,
     backgroundColor: colors.brand.primary,
     borderRadius: radius.full,
   },
@@ -497,7 +484,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.text.primary,
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
+    fontFamily: fontFamily.heading,
     marginBottom: spacing.md,
   },
   achievementsGrid: {
@@ -575,34 +562,4 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
 
-  // ── Bottom Bar ──
-  bottomBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.bg.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.bg.surfaceLight,
-    paddingVertical: spacing.sm,
-    paddingBottom: Platform.OS === 'ios' ? spacing.xl : spacing.base,
-  },
-  bottomTab: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 2,
-  },
-  bottomTabIcon: {
-    fontSize: 20,
-    opacity: 0.5,
-  },
-  bottomTabIconActive: {
-    fontSize: 20,
-  },
-  bottomTabLabel: {
-    color: colors.text.muted,
-    fontSize: fontSize.xs,
-  },
-  bottomTabLabelActive: {
-    color: colors.text.primary,
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.medium,
-  },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useContext, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,24 +6,23 @@ import {
   StyleSheet,
   Dimensions,
   Platform,
-  Image,
   ActivityIndicator,
   Alert,
   Modal,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { NavigationContext, type GameMode } from '../../App';
 import { useDojo } from '../dojo/DojoContext';
 import { usePlayer } from '../hooks/usePlayer';
 import { useGameActions, type DailyStatus } from '../hooks/useGameActions';
-import { colors, fontSize, fontWeight, spacing, radius, grid } from '../theme';
+import { colors, fontSize, fontWeight, spacing, radius, grid, fontFamily, gradients } from '../theme';
 
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 54 : 36;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Board sizing — constrained so it doesn't eat the whole screen
 const BOARD_MAX_WIDTH = 300;
 const BOARD_WIDTH = Math.min(SCREEN_WIDTH - 48, BOARD_MAX_WIDTH);
-const TILE_GAP = 5;
+const TILE_GAP = 6;
 const TILE_SIZE = Math.floor((BOARD_WIDTH - TILE_GAP * (grid.cols - 1)) / grid.cols);
 
 export type TileState = 'empty' | 'filled' | 'correct' | 'present' | 'absent';
@@ -36,16 +35,15 @@ export interface TileData {
 const KEYBOARD_ROWS = [
   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
   ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-  ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫'],
+  ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫'],
 ];
 
-// Keyboard sizing
 const KEY_GAP = 4;
 const KEY_WIDTH = Math.floor(
   (SCREEN_WIDTH - 16 - KEY_GAP * (KEYBOARD_ROWS[0].length - 1)) /
     KEYBOARD_ROWS[0].length
 );
-const KEY_HEIGHT = 44;
+const KEY_HEIGHT = 46;
 
 function getKeyboardStates(guesses: TileData[][]): Record<string, TileState> {
   const states: Record<string, TileState> = {};
@@ -72,6 +70,14 @@ const TILE_BG: Record<TileState, string> = {
   absent: colors.tile.absent,
 };
 
+const TILE_BORDER: Record<TileState, string> = {
+  empty: colors.tile.border as string,
+  filled: colors.tile.activeBorder as string,
+  correct: colors.tile.correct as string,
+  present: colors.tile.present as string,
+  absent: 'transparent',
+};
+
 // ── Tile ──
 function Tile({ tile }: { tile: TileData }) {
   const isActive = tile.letter !== '' && tile.state === 'filled';
@@ -79,8 +85,11 @@ function Tile({ tile }: { tile: TileData }) {
     <View
       style={[
         styles.tile,
-        { backgroundColor: TILE_BG[tile.state] },
-        isActive && styles.tileActive,
+        {
+          backgroundColor: TILE_BG[tile.state],
+          borderColor: TILE_BORDER[tile.state],
+          borderWidth: isActive ? 2 : 1,
+        },
       ]}
     >
       {tile.letter !== '' && (
@@ -100,28 +109,46 @@ function KeyboardKey({
   state?: TileState;
   onPress: (key: string) => void;
 }) {
-  const isBackspace = letter === '⌫';
+  const isWide = letter === '⌫' || letter === 'ENTER';
   const hasState = state && state !== 'empty' && state !== 'filled';
-  const keyBg = hasState
-    ? state === 'correct'
-      ? colors.tile.correct
-      : state === 'present'
-        ? colors.tile.present
-        : colors.tile.absent
-    : '#FFFFFF';
-  const textColor = hasState ? colors.text.onTile : colors.bg.primary;
+
+  let keyBg: string = colors.tile.empty;
+  let borderColor: string = colors.tile.border;
+  let textColor: string = colors.text.primary;
+
+  if (hasState) {
+    if (state === 'correct') {
+      keyBg = colors.tile.correct;
+      borderColor = colors.tile.correct;
+    } else if (state === 'present') {
+      keyBg = colors.tile.present;
+      borderColor = colors.tile.present;
+      textColor = colors.bg.primary;
+    } else {
+      keyBg = 'rgba(12,141,138,0.15)';
+      borderColor = 'rgba(12,141,138,0.1)';
+    }
+  }
 
   return (
     <TouchableOpacity
       style={[
         styles.key,
-        { backgroundColor: keyBg },
-        isBackspace && styles.keyWide,
+        { backgroundColor: keyBg, borderColor },
+        isWide && styles.keyWide,
       ]}
       onPress={() => onPress(letter)}
       activeOpacity={0.6}
     >
-      <Text style={[styles.keyText, { color: textColor }]}>{letter}</Text>
+      <Text
+        style={[
+          styles.keyText,
+          { color: textColor },
+          isWide && styles.keyTextWide,
+        ]}
+      >
+        {letter}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -161,7 +188,6 @@ function DailyCountdownScreen({
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={goBack} style={styles.backBtn}>
@@ -173,17 +199,15 @@ function DailyCountdownScreen({
       </View>
 
       <View style={styles.countdownWrapper}>
-        {/* Result icon */}
         <View
           style={[
             styles.countdownIcon,
-            { backgroundColor: isWin ? colors.success : colors.brand.secondary },
+            { backgroundColor: isWin ? colors.success : colors.bg.surfaceLight },
           ]}
         >
           <Text style={styles.countdownIconText}>{isWin ? '🏆' : '✋'}</Text>
         </View>
 
-        {/* Result text */}
         <Text
           style={[
             styles.countdownResultText,
@@ -199,7 +223,6 @@ function DailyCountdownScreen({
           </Text>
         )}
 
-        {/* Mini board preview */}
         <View style={styles.miniBoard}>
           {dailyStatus.guesses.map((row, rowIdx) => (
             <View key={rowIdx} style={styles.miniRow}>
@@ -216,11 +239,9 @@ function DailyCountdownScreen({
           ))}
         </View>
 
-        {/* Countdown */}
         <Text style={styles.countdownLabel}>Next Daily Challenge in</Text>
         <Text style={styles.countdownTimer}>{formatCountdown(secondsLeft)}</Text>
 
-        {/* Back to dashboard */}
         <TouchableOpacity
           style={styles.countdownBtn}
           onPress={goBack}
@@ -234,11 +255,6 @@ function DailyCountdownScreen({
 }
 
 // ── Game Board Screen ──
-function truncateAddress(addr: string): string {
-  if (!addr || addr.length < 12) return addr || '';
-  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-}
-
 export function GameBoardScreen() {
   const { goBack, params } = useContext(NavigationContext);
   const mode: GameMode = (params?.mode as GameMode) || 'classic';
@@ -264,38 +280,30 @@ export function GameBoardScreen() {
   const currentRow = guesses.length;
   const keyStates = getKeyboardStates(guesses);
 
-  // Init game based on mode (player registration handled at connect time)
   useEffect(() => {
     let cancelled = false;
     async function init() {
       setIsLoading(true);
       try {
         if (mode === 'daily') {
-          // Check daily game status
           const status = await checkDailyStatus();
-
           if (status.hasFinished) {
-            // Already played today — show countdown
             if (!cancelled) setDailyFinished(status);
             return;
           }
-
           if (!status.hasJoined) {
-            // Start and join daily game
             const dailyGameId = await startDailyGame();
             if (!cancelled) {
               setGameId(dailyGameId);
               setGuesses([]);
             }
           } else {
-            // Resume in-progress daily game
             if (!cancelled) {
               setGameId(status.gameId);
               setGuesses(status.guesses);
             }
           }
         } else {
-          // Classic mode — resume or start
           const resumed = await resumeOrStartGame();
           if (!cancelled) {
             setGameId(resumed.gameId);
@@ -304,9 +312,7 @@ export function GameBoardScreen() {
           }
         }
       } catch (err: any) {
-        if (!cancelled) {
-          Alert.alert('Error', err.message);
-        }
+        if (!cancelled) Alert.alert('Error', err.message);
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -320,6 +326,9 @@ export function GameBoardScreen() {
       if (gameOver || isLoading) return;
       if (key === '⌫') {
         setCurrentGuess((prev) => prev.slice(0, -1));
+      } else if (key === 'ENTER') {
+        // Submit handled inline
+        return;
       } else if (currentGuess.length < grid.cols) {
         setCurrentGuess((prev) => prev + key);
       }
@@ -358,15 +367,11 @@ export function GameBoardScreen() {
 
   const handlePlayNext = useCallback(async () => {
     setShowModal(false);
-
     if (mode === 'daily') {
-      // Daily mode — can't play again, show countdown
       const status = await checkDailyStatus();
       setDailyFinished(status);
       return;
     }
-
-    // Classic mode — start new game
     setIsLoading(true);
     try {
       const newGameId = await startGame();
@@ -382,12 +387,6 @@ export function GameBoardScreen() {
     }
   }, [startGame, mode, checkDailyStatus]);
 
-  const handleExtraAttempt = useCallback(() => {
-    // TODO: not yet implemented in the contract
-    setShowModal(false);
-  }, []);
-
-  // If daily game is finished, show countdown
   if (dailyFinished) {
     return <DailyCountdownScreen dailyStatus={dailyFinished} goBack={goBack} />;
   }
@@ -408,18 +407,19 @@ export function GameBoardScreen() {
       board.push(row);
     } else {
       board.push(
-        Array.from({ length: grid.cols }, (): TileData => ({
-          letter: '',
-          state: 'empty',
-        }))
+        Array.from({ length: grid.cols }, (): TileData => ({ letter: '', state: 'empty' }))
       );
     }
   }
 
   const canSubmit = currentGuess.length === grid.cols && !isLoading && !gameOver && gameId !== null;
   const isDaily = mode === 'daily';
+  // Fields not yet in contract — use safe defaults
+  const p = player as any;
+  const playerLevel = p?.level ?? 1;
+  const playerLives = p?.lives ?? 3;
+  const playerGems = p?.gems ?? 0;
 
-  // Loading overlay while starting game
   if (gameId === null) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -433,43 +433,38 @@ export function GameBoardScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Top Bar */}
       <View style={styles.header}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={goBack} style={styles.backBtn}>
-            <Text style={styles.backText}>‹ Back</Text>
+            <Text style={styles.backText}>‹</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>
-            {isDaily ? 'Daily Challenge' : 'Tweetle'}
-          </Text>
-          <View style={styles.backBtn} />
-        </View>
 
-        {/* Info bar */}
-        <View style={styles.infoBar}>
-          <View style={styles.infoPill}>
-            <View style={styles.pillDot}>
-              <Text style={styles.pillDotText}>C</Text>
+          <View style={styles.topStats}>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>SCORE</Text>
+              <Text style={styles.statValue}>{(player?.points ?? 0).toLocaleString()}</Text>
             </View>
-            <Text style={styles.pillText}>
-              {truncateAddress(address || '0x...')}
-            </Text>
+            <View style={styles.statItem}>
+              <Text style={styles.statEmoji}>🍃</Text>
+              <Text style={styles.statValue}>{playerLives}</Text>
+            </View>
           </View>
 
-          <View style={styles.infoPillSmall}>
-            <Text style={styles.pillEmoji}>{isDaily ? '📅' : '🎯'}</Text>
-            <Text style={styles.pillText}>{isDaily ? 'Daily' : 'Classic'}</Text>
-          </View>
-
-          <View style={[styles.infoPill, styles.scorePill]}>
-            <Text style={styles.pillEmoji}>🪙</Text>
-            <Text style={styles.scoreText}>{(player?.points ?? 0).toLocaleString()}</Text>
+          <View style={styles.statItem}>
+            <Text style={styles.statEmoji}>💎</Text>
+            <Text style={styles.statValue}>{playerGems}</Text>
           </View>
         </View>
+
+        <Text style={styles.levelText}>LEVEL {playerLevel}</Text>
       </View>
 
-      {/* Board — centered, constrained */}
+      {/* Board */}
       <View style={styles.boardWrapper}>
+        {guesses.length === 0 && currentGuess.length === 0 && (
+          <Text style={styles.promptText}>MAKE YOUR FIRST GUESS!</Text>
+        )}
         <View style={styles.boardContainer}>
           {board.map((row, rowIdx) => (
             <View key={rowIdx} style={styles.tileRow}>
@@ -490,38 +485,20 @@ export function GameBoardScreen() {
                 key={key}
                 letter={key}
                 state={keyStates[key]}
-                onPress={handleKeyPress}
+                onPress={key === 'ENTER' ? () => handleSubmit() : handleKeyPress}
               />
             ))}
           </View>
         ))}
       </View>
 
-      {/* Action bar */}
-      <View style={styles.actionBar}>
-        <TouchableOpacity style={styles.hintButton} activeOpacity={0.7}>
-          <Image
-            source={require('../../assets/tweetle_mascot.png')}
-            style={styles.hintMascot}
-            resizeMode="contain"
-          />
-          <Text style={styles.hintText}>Hint</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.submitButton, !canSubmit && styles.submitDisabled]}
-          activeOpacity={0.8}
-          disabled={!canSubmit}
-          onPress={handleSubmit}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color={colors.text.primary} />
-          ) : (
-            <Text style={styles.submitText}>
-              {gameOver ? (gameOver === 'won' ? 'You Won!' : 'Game Over') : 'Submit'}
-            </Text>
-          )}
-        </TouchableOpacity>
+      {/* Bottom Toolbar */}
+      <View style={styles.toolbar}>
+        {['🎨', 'ℹ️', '🔊', '❓', '⚙️'].map((icon, i) => (
+          <TouchableOpacity key={i} style={styles.toolbarIcon} activeOpacity={0.6}>
+            <Text style={styles.toolbarIconText}>{icon}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {/* Win / Loss Modal */}
@@ -533,7 +510,6 @@ export function GameBoardScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            {/* Close button */}
             <TouchableOpacity
               style={styles.modalClose}
               onPress={() => setShowModal(false)}
@@ -542,39 +518,52 @@ export function GameBoardScreen() {
               <Text style={styles.modalCloseText}>✕</Text>
             </TouchableOpacity>
 
-            {/* Title */}
-            <Text
-              style={[
-                styles.modalTitle,
-                { color: gameOver === 'won' ? colors.success : colors.success },
-              ]}
+            {/* Golden banner */}
+            <LinearGradient
+              colors={[...gradients.gold]}
+              style={styles.modalBanner}
             >
-              {gameOver === 'won' ? 'YOU WON!' : 'TRY AGAIN'}
-            </Text>
-
-            {/* Icon */}
-            <View
-              style={[
-                styles.modalIcon,
-                {
-                  backgroundColor:
-                    gameOver === 'won' ? colors.success : colors.brand.secondary,
-                },
-              ]}
-            >
-              <Text style={styles.modalIconText}>
-                {gameOver === 'won' ? '🏆' : '✋'}
+              <Text style={styles.modalBannerText}>
+                {gameOver === 'won' ? "YOU'RE A PRO!" : 'TRY AGAIN'}
               </Text>
-            </View>
+            </LinearGradient>
 
-            {/* Subtitle */}
+            {/* Solved word tiles */}
+            {guesses.length > 0 && (
+              <View style={styles.modalTileRow}>
+                {guesses[guesses.length - 1].map((tile, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.modalTile,
+                      { backgroundColor: TILE_BG[tile.state] },
+                    ]}
+                  >
+                    <Text style={styles.modalTileLetter}>{tile.letter}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Points */}
+            {gameOver === 'won' && (
+              <Text style={styles.modalPoints}>
+                +{winAttempts <= 2 ? 100 : winAttempts <= 4 ? 75 : 50} points
+              </Text>
+            )}
+
             <Text style={styles.modalSubtitle}>
               {gameOver === 'won'
                 ? `Solved in ${winAttempts} attempt${winAttempts !== 1 ? 's' : ''}!`
                 : 'Better luck next time!'}
             </Text>
 
-            {/* Play Next / Next Challenge button */}
+            {/* Share button */}
+            <TouchableOpacity style={styles.shareBtn} activeOpacity={0.8}>
+              <Text style={styles.shareBtnText}>SHARE ON X</Text>
+            </TouchableOpacity>
+
+            {/* Play Next */}
             <TouchableOpacity
               style={styles.modalBtnPrimary}
               activeOpacity={0.8}
@@ -588,17 +577,6 @@ export function GameBoardScreen() {
                 </Text>
               )}
             </TouchableOpacity>
-
-            {/* Extra Attempt button (loss only, classic only) */}
-            {gameOver === 'lost' && !isDaily && (
-              <TouchableOpacity
-                style={styles.modalBtnSecondary}
-                activeOpacity={0.8}
-                onPress={handleExtraAttempt}
-              >
-                <Text style={styles.modalBtnSecondaryText}>Get Extra Attempt</Text>
-              </TouchableOpacity>
-            )}
           </View>
         </View>
       </Modal>
@@ -615,7 +593,7 @@ const styles = StyleSheet.create({
 
   // ── Header ──
   header: {
-    backgroundColor: colors.brand.secondary,
+    backgroundColor: colors.bg.surface,
     paddingHorizontal: spacing.base,
     paddingTop: spacing.sm,
     paddingBottom: spacing.md,
@@ -626,74 +604,55 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   backBtn: {
-    width: 50,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backText: {
-    color: colors.info,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
+    color: colors.brand.primary,
+    fontSize: fontSize['2xl'],
+    fontWeight: fontWeight.bold,
   },
   headerTitle: {
     color: colors.text.primary,
     fontSize: fontSize.base,
-    fontWeight: fontWeight.bold,
-    textAlign: 'center',
+    fontFamily: fontFamily.heading,
+    textAlign: 'center' as const,
   },
-  infoBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  infoPill: {
+  topStats: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#1A1A2ECC',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radius.full,
+    gap: spacing.lg,
   },
-  infoPillSmall: {
+  statItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#1A1A2ECC',
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: radius.full,
   },
-  pillDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: colors.brand.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+  statLabel: {
+    color: colors.text.muted,
+    fontSize: fontSize.xs,
+    fontFamily: fontFamily.bodySemiBold,
+    marginRight: 4,
   },
-  pillDotText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: fontWeight.bold,
-  },
-  pillText: {
+  statValue: {
     color: colors.text.primary,
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.semibold,
+    fontSize: fontSize.base,
+    fontFamily: fontFamily.bodyBold,
   },
-  pillEmoji: {
-    fontSize: 12,
+  statEmoji: {
+    fontSize: 16,
   },
-  scorePill: {
-    borderWidth: 1,
-    borderColor: colors.gold,
-  },
-  scoreText: {
-    color: colors.gold,
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.bold,
+  levelText: {
+    color: colors.brand.primary,
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.heading,
+    textAlign: 'center',
+    letterSpacing: 2,
   },
 
   // ── Board ──
@@ -701,6 +660,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  promptText: {
+    color: colors.text.muted,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.bodySemiBold,
+    letterSpacing: 1,
+    marginBottom: spacing.md,
   },
   boardContainer: {
     width: BOARD_WIDTH,
@@ -715,17 +681,12 @@ const styles = StyleSheet.create({
     height: TILE_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.tile.border,
-  },
-  tileActive: {
-    borderColor: colors.tile.activeBorder,
-    borderWidth: 2,
+    borderRadius: radius.sm,
   },
   tileLetter: {
     color: colors.text.onTile,
-    fontSize: fontSize.xl,
-    fontWeight: fontWeight.bold,
+    fontSize: Math.round(TILE_SIZE * 0.45),
+    fontFamily: fontFamily.display,
   },
 
   // ── Keyboard ──
@@ -742,55 +703,42 @@ const styles = StyleSheet.create({
   key: {
     width: KEY_WIDTH,
     height: KEY_HEIGHT,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
   },
   keyWide: {
-    width: KEY_WIDTH * 1.4,
+    width: KEY_WIDTH * 1.5,
   },
   keyText: {
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.bold,
+    fontSize: 15,
+    fontFamily: fontFamily.bodyBold,
+  },
+  keyTextWide: {
+    fontSize: 10,
+    fontFamily: fontFamily.bodySemiBold,
   },
 
-  // ── Action Bar ──
-  actionBar: {
+  // ── Bottom Toolbar ──
+  toolbar: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing['2xl'],
+    alignItems: 'center',
+    gap: spacing.xl,
     paddingTop: spacing.md,
     paddingBottom: Platform.OS === 'ios' ? spacing['2xl'] : spacing['3xl'],
   },
-  hintButton: {
-    flexDirection: 'row',
+  toolbarIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.bg.surface,
     alignItems: 'center',
-    gap: spacing.sm,
+    justifyContent: 'center',
   },
-  hintMascot: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-  },
-  hintText: {
-    color: colors.text.primary,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.semibold,
-  },
-  submitButton: {
-    backgroundColor: colors.brand.primary,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: 10,
-    borderRadius: radius.full,
-  },
-  submitDisabled: {
-    opacity: 0.4,
-  },
-  submitText: {
-    color: colors.text.primary,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.bold,
+  toolbarIconText: {
+    fontSize: 18,
   },
 
   // ── Modal ──
@@ -808,6 +756,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing['3xl'],
     paddingHorizontal: spacing.xl,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.tile.border,
   },
   modalClose: {
     position: 'absolute',
@@ -823,23 +773,41 @@ const styles = StyleSheet.create({
     fontSize: fontSize.lg,
     fontWeight: fontWeight.bold,
   },
-  modalTitle: {
-    fontSize: fontSize['4xl'],
-    fontWeight: fontWeight.extrabold,
-    letterSpacing: 2,
+  modalBanner: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing['2xl'],
+    borderRadius: radius.md,
     marginBottom: spacing.lg,
+  },
+  modalBannerText: {
+    color: colors.text.primary,
+    fontSize: fontSize['2xl'],
+    fontFamily: fontFamily.display,
+    letterSpacing: 2,
     textAlign: 'center',
   },
-  modalIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+  modalTileRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginBottom: spacing.md,
+  },
+  modalTile: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.lg,
   },
-  modalIconText: {
-    fontSize: 28,
+  modalTileLetter: {
+    color: colors.text.onTile,
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.display,
+  },
+  modalPoints: {
+    color: colors.brand.accent,
+    fontSize: fontSize.xl,
+    fontFamily: fontFamily.heading,
+    marginBottom: spacing.sm,
   },
   modalSubtitle: {
     color: colors.text.secondary,
@@ -847,38 +815,34 @@ const styles = StyleSheet.create({
     marginBottom: spacing['2xl'],
     textAlign: 'center',
   },
+  shareBtn: {
+    backgroundColor: colors.bg.surface,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing['2xl'],
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.tile.border,
+    marginBottom: spacing.md,
+  },
+  shareBtnText: {
+    color: colors.text.primary,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.bodySemiBold,
+    letterSpacing: 1,
+  },
   modalBtnPrimary: {
     width: '100%',
-    backgroundColor: colors.success,
+    backgroundColor: colors.brand.primary,
     paddingVertical: spacing.base,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#4ADE80',
-    marginBottom: spacing.md,
     minHeight: 52,
   },
   modalBtnPrimaryText: {
-    color: colors.text.primary,
+    color: colors.bg.primary,
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.semibold,
-  },
-  modalBtnSecondary: {
-    width: '100%',
-    backgroundColor: colors.silver,
-    paddingVertical: spacing.base,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    minHeight: 52,
-  },
-  modalBtnSecondaryText: {
-    color: colors.text.primary,
-    fontSize: fontSize.lg,
-    fontWeight: fontWeight.semibold,
+    fontFamily: fontFamily.bodySemiBold,
   },
 
   // ── Countdown Screen ──
@@ -901,7 +865,7 @@ const styles = StyleSheet.create({
   },
   countdownResultText: {
     fontSize: fontSize['3xl'],
-    fontWeight: fontWeight.extrabold,
+    fontFamily: fontFamily.display,
     letterSpacing: 2,
     marginBottom: spacing.sm,
     textAlign: 'center',
@@ -923,7 +887,7 @@ const styles = StyleSheet.create({
   miniTile: {
     width: 28,
     height: 28,
-    borderRadius: 4,
+    borderRadius: radius.sm,
   },
   countdownLabel: {
     color: colors.text.secondary,
@@ -934,7 +898,7 @@ const styles = StyleSheet.create({
   countdownTimer: {
     color: colors.text.primary,
     fontSize: fontSize['4xl'],
-    fontWeight: fontWeight.extrabold,
+    fontFamily: fontFamily.display,
     letterSpacing: 4,
     marginBottom: spacing['2xl'],
     textAlign: 'center',
@@ -946,8 +910,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   countdownBtnText: {
-    color: colors.text.primary,
+    color: colors.bg.primary,
     fontSize: fontSize.base,
-    fontWeight: fontWeight.bold,
+    fontFamily: fontFamily.bodySemiBold,
   },
 });

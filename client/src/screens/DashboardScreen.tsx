@@ -6,16 +6,16 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
-  Image,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useDojo } from '../dojo/DojoContext';
 import { usePlayer } from '../hooks/usePlayer';
 import { NavigationContext } from '../../App';
-import { colors, fontSize, fontWeight, spacing, radius } from '../theme';
+import { colors, fontSize, fontWeight, spacing, radius, fontFamily, gradients } from '../theme';
+import { TabBar } from '../components/TabBar';
 
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 54 : 36;
-
-const PREVIEW_TILE = 44;
+const PREVIEW_TILE = 40;
 
 function truncateAddress(addr: string): string {
   if (!addr || addr.length < 12) return addr || '';
@@ -24,73 +24,122 @@ function truncateAddress(addr: string): string {
 
 export function DashboardScreen() {
   const { address } = useDojo();
-  const { navigate, goBack } = useContext(NavigationContext);
+  const { navigate } = useContext(NavigationContext);
   const { player } = usePlayer();
+
+  // Fields not yet in contract — use safe defaults
+  const p = player as any;
+  const streak = p?.streak ?? 0;
+  const lives = p?.lives ?? 5;
+  const level = p?.level ?? 1;
+  const winRate = player?.classicGameCount
+    ? Math.round((p?.wins ?? 0) / player.classicGameCount * 100)
+    : 0;
 
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity onPress={goBack}>
-            <Text style={styles.backText}>‹ Back</Text>
-          </TouchableOpacity>
-          <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>Tweetle</Text>
-            <Text style={styles.headerSubtitle}>bot</Text>
-          </View>
-          <View style={{ width: 40 }} />
-        </View>
+      <LinearGradient
+        colors={[...gradients.header]}
+        style={styles.header}
+      >
+        <Text style={styles.headerTitle}>TWEETLE</Text>
+        <Text style={styles.headerSubtitle}>GUESS THE WORD. PROVE YOUR SKILL.</Text>
 
         <View style={styles.walletBadge}>
-          <View style={styles.walletIcon}>
-            <Text style={styles.walletIconText}>K</Text>
+          <View style={styles.walletDot}>
+            <Text style={styles.walletDotText}>K</Text>
           </View>
           <Text style={styles.walletText}>
             {player?.username || truncateAddress(address || '')}
           </Text>
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView
         style={styles.body}
         contentContainerStyle={styles.bodyContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Birdle Challenge */}
-        <View style={styles.challengeSection}>
-          <Image
-            source={require('../../assets/tweetle_mascot.png')}
-            style={styles.mascotSmall}
-            resizeMode="contain"
-          />
-          <Text style={styles.challengeTitle}>Birdle Challenge</Text>
-          <Text style={styles.challengeSubtitle}>
-            Solve. Score. Win Rewards.
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <View style={styles.statBox}>
+            <Text style={styles.statBoxEmoji}>🔥</Text>
+            <Text style={styles.statBoxValue}>{streak}</Text>
+            <Text style={styles.statBoxLabel}>Streak</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statBoxEmoji}>🎮</Text>
+            <Text style={styles.statBoxValue}>{player?.classicGameCount ?? 0}</Text>
+            <Text style={styles.statBoxLabel}>Played</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statBoxEmoji}>🏆</Text>
+            <Text style={styles.statBoxValue}>{winRate}%</Text>
+            <Text style={styles.statBoxLabel}>Win %</Text>
+          </View>
+        </View>
+
+        {/* Daily Challenge Card */}
+        <View style={styles.dailyCard}>
+          <View style={styles.dailyAccent} />
+          <Text style={styles.dailyTitle}>Today's Daily Challenge</Text>
+          <Text style={styles.dailyDesc}>
+            Solve today's puzzle and earn up to{' '}
+            <Text style={styles.dailyHighlight}>50 Points!</Text>
           </Text>
 
-          <View style={styles.scoreRow}>
-            <View style={styles.scorePill}>
-              <Text style={styles.coinIcon}>🪙</Text>
-              <Text style={styles.scoreValue}>
-                {(player?.points ?? 0).toLocaleString()}
-              </Text>
-            </View>
+          <View style={styles.previewRow}>
+            {['T', 'W', 'E', 'E', 'T'].map((letter, i) => {
+              const tileColors = [
+                colors.tile.correct,
+                colors.tile.present,
+                colors.tile.absent,
+                colors.tile.correct,
+                colors.tile.absent,
+              ];
+              return (
+                <View
+                  key={i}
+                  style={[styles.previewTile, { backgroundColor: tileColors[i] }]}
+                >
+                  <Text style={[
+                    styles.previewLetter,
+                    i === 1 && { color: colors.bg.primary },
+                  ]}>{letter}</Text>
+                </View>
+              );
+            })}
           </View>
 
-          <View style={styles.badgesRow}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeIcon}>{player?.levelIcon ?? '🥚'}</Text>
-              <Text style={styles.badgeLabel}>Level</Text>
-            </View>
-            <View style={styles.badge}>
-              <Text style={styles.badgeIcon}>🎯</Text>
-              <Text style={styles.badgeLabel}>{player?.classicGameCount ?? 0} Games</Text>
-            </View>
-            <View style={styles.badge}>
-              <Text style={styles.badgeIcon}>🐣</Text>
-              <Text style={styles.badgeLabel}>{player?.levelTitle ?? 'Hatchling'}</Text>
-            </View>
+          <TouchableOpacity
+            style={styles.dailyPlayBtn}
+            onPress={() => navigate('gameboard' as any, { mode: 'daily' })}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.dailyPlayBtnText}>PLAY</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Lives */}
+        <View style={styles.livesRow}>
+          <View style={styles.livesLeft}>
+            <Text style={styles.livesEmojis}>
+              {'🍃'.repeat(Math.min(lives, 5))}
+            </Text>
+            <Text style={styles.livesText}>
+              {lives} lives remaining
+            </Text>
+          </View>
+          <Text style={styles.livesReset}>Resets in 24h</Text>
+        </View>
+
+        {/* Level Badge */}
+        <View style={styles.levelBadge}>
+          <Text style={styles.levelEmoji}>{player?.levelIcon ?? '🥚'}</Text>
+          <View>
+            <Text style={styles.levelTitle}>{player?.levelTitle ?? 'Hatchling'}</Text>
+            <Text style={styles.levelSubtitle}>Level {level}</Text>
           </View>
         </View>
 
@@ -99,7 +148,7 @@ export function DashboardScreen() {
         <View style={styles.modesRow}>
           <TouchableOpacity
             style={styles.modeCard}
-            onPress={() => navigate('gameboard', { mode: 'classic' })}
+            onPress={() => navigate('gameboard' as any, { mode: 'classic' })}
             activeOpacity={0.8}
           >
             <Text style={styles.modeIcon}>🎯</Text>
@@ -111,66 +160,21 @@ export function DashboardScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.modeCard, styles.modeCardDaily]}
-            onPress={() => navigate('gameboard', { mode: 'daily' })}
+            style={[styles.modeCard, styles.modeCardAccent]}
+            onPress={() => navigate('gameboard' as any, { mode: 'daily' })}
             activeOpacity={0.8}
           >
             <Text style={styles.modeIcon}>📅</Text>
             <Text style={styles.modeTitle}>Daily</Text>
             <Text style={styles.modeDesc}>1 word/day{'\n'}Max 50pts</Text>
-            <View style={[styles.modePlayPill, styles.modePlayPillDaily]}>
-              <Text style={styles.modePlayText}>Play</Text>
+            <View style={[styles.modePlayPill, styles.modePlayPillAccent]}>
+              <Text style={styles.modePlayTextAccent}>Play</Text>
             </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* Today's Daily Challenge */}
-        <View style={styles.dailyCard}>
-          <Text style={styles.dailyTitle}>Today's Daily Challenge</Text>
-
-          <View style={styles.previewRow}>
-            {[0, 1, 2, 3, 4].map((i) => (
-              <View
-                key={i}
-                style={[styles.previewTile, { backgroundColor: colors.tile.empty }]}
-              >
-                <Text style={styles.previewLetter}>?</Text>
-              </View>
-            ))}
-          </View>
-
-          <Text style={styles.dailyDescription}>
-            Think You've Got What It Takes? Solve Today's Puzzle And Earn The
-            Max Reward Of{' '}
-            <Text style={styles.dailyHighlight}>50 Points!</Text> Put Your Word
-            Skills To The Test And Climb The Leaderboard With Each Victory.
-          </Text>
-
-          <TouchableOpacity
-            style={styles.playButton}
-            onPress={() => navigate('gameboard', { mode: 'daily' })}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.playButtonText}>Play Now</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* Bottom tab bar */}
-      <View style={styles.tabBar}>
-        <TouchableOpacity style={styles.tab}>
-          <Text style={styles.tabIconActive}>🏠</Text>
-          <Text style={styles.tabLabelActive}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tab} onPress={() => navigate('leaderboard')}>
-          <Text style={styles.tabIcon}>📊</Text>
-          <Text style={styles.tabLabel}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tab} onPress={() => navigate('profile')}>
-          <Text style={styles.tabIcon}>👤</Text>
-          <Text style={styles.tabLabel}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      <TabBar activeTab="dashboard" onNavigate={(tab) => navigate(tab as any)} />
     </View>
   );
 }
@@ -181,50 +185,41 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg.primary,
     paddingTop: STATUS_BAR_HEIGHT,
   },
+
+  // ── Header ──
   header: {
-    backgroundColor: colors.brand.secondary,
     paddingHorizontal: spacing.base,
+    paddingTop: spacing.base,
     paddingBottom: spacing.lg,
     borderBottomLeftRadius: radius.xl,
     borderBottomRightRadius: radius.xl,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: spacing.sm,
-    marginBottom: spacing.base,
-  },
-  backText: {
-    color: colors.info,
-    fontSize: fontSize.base,
-    fontWeight: fontWeight.medium,
-  },
-  headerCenter: {
     alignItems: 'center',
   },
   headerTitle: {
-    color: colors.text.primary,
-    fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
+    color: colors.brand.primary,
+    fontSize: fontSize['3xl'],
+    fontFamily: fontFamily.display,
+    letterSpacing: 4,
   },
   headerSubtitle: {
     color: colors.text.muted,
     fontSize: fontSize.xs,
+    fontFamily: fontFamily.bodySemiBold,
+    letterSpacing: 1,
+    marginBottom: spacing.md,
   },
   walletBadge: {
-    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    backgroundColor: colors.brand.primaryAlpha,
+    backgroundColor: 'rgba(0,229,204,0.12)',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.base,
     borderRadius: radius.full,
     borderWidth: 1,
     borderColor: colors.brand.primary,
   },
-  walletIcon: {
+  walletDot: {
     width: 20,
     height: 20,
     borderRadius: 10,
@@ -232,145 +227,89 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  walletIconText: {
-    color: '#fff',
+  walletDotText: {
+    color: colors.bg.primary,
     fontSize: 11,
     fontWeight: fontWeight.bold,
   },
   walletText: {
     color: colors.text.primary,
     fontSize: fontSize.sm,
-    fontWeight: fontWeight.semibold,
+    fontFamily: fontFamily.bodySemiBold,
   },
-  body: {
-    flex: 1,
-  },
+
+  // ── Body ──
+  body: { flex: 1 },
   bodyContent: {
     paddingHorizontal: spacing.base,
     paddingTop: spacing.xl,
     paddingBottom: spacing['2xl'],
   },
-  challengeSection: {
-    alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
-  mascotSmall: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    marginBottom: spacing.sm,
-  },
-  challengeTitle: {
-    color: colors.text.primary,
-    fontSize: fontSize['2xl'],
-    fontWeight: fontWeight.extrabold,
-    marginBottom: spacing.xs,
-  },
-  challengeSubtitle: {
-    color: colors.text.secondary,
-    fontSize: fontSize.sm,
-    marginBottom: spacing.base,
-  },
-  scoreRow: {
-    marginBottom: spacing.base,
-  },
-  scorePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.bg.surface,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.full,
-  },
-  coinIcon: {
-    fontSize: 16,
-  },
-  scoreValue: {
-    color: colors.gold,
-    fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    gap: spacing.xl,
-  },
-  badge: {
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  badgeIcon: {
-    fontSize: 24,
-  },
-  badgeLabel: {
-    color: colors.text.secondary,
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.medium,
-  },
-  sectionTitle: {
-    color: colors.text.primary,
-    fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
-    marginBottom: spacing.md,
-  },
-  modesRow: {
+
+  // ── Stats Row ──
+  statsRow: {
     flexDirection: 'row',
     gap: spacing.md,
     marginBottom: spacing.xl,
   },
-  modeCard: {
+  statBox: {
     flex: 1,
     backgroundColor: colors.bg.surface,
     borderRadius: radius.lg,
-    padding: spacing.base,
+    padding: spacing.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.bg.surfaceLight,
+    borderColor: colors.tile.border,
   },
-  modeCardDaily: {
-    borderColor: colors.brand.primary,
-  },
-  modeIcon: {
-    fontSize: 28,
-    marginBottom: spacing.sm,
-  },
-  modeTitle: {
-    color: colors.text.primary,
-    fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
+  statBoxEmoji: {
+    fontSize: 20,
     marginBottom: spacing.xs,
   },
-  modeDesc: {
-    color: colors.text.secondary,
-    fontSize: fontSize.xs,
-    textAlign: 'center',
-    lineHeight: 16,
-    marginBottom: spacing.md,
-  },
-  modePlayPill: {
-    backgroundColor: colors.brand.secondary,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.full,
-  },
-  modePlayPillDaily: {
-    backgroundColor: colors.brand.primary,
-  },
-  modePlayText: {
+  statBoxValue: {
     color: colors.text.primary,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.semibold,
+    fontSize: fontSize.xl,
+    fontFamily: fontFamily.heading,
   },
+  statBoxLabel: {
+    color: colors.text.muted,
+    fontSize: fontSize.xs,
+    fontFamily: fontFamily.body,
+  },
+
+  // ── Daily Card ──
   dailyCard: {
     backgroundColor: colors.bg.surface,
     borderRadius: radius.lg,
     padding: spacing.base,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.tile.border,
+    overflow: 'hidden',
+  },
+  dailyAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: colors.brand.primary,
   },
   dailyTitle: {
     color: colors.text.primary,
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
+    fontFamily: fontFamily.heading,
+    marginBottom: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  dailyDesc: {
+    color: colors.text.secondary,
+    fontSize: fontSize.sm,
+    lineHeight: 20,
     marginBottom: spacing.base,
+  },
+  dailyHighlight: {
+    color: colors.brand.primary,
+    fontFamily: fontFamily.bodyBold,
   },
   previewRow: {
     flexDirection: 'row',
@@ -387,57 +326,136 @@ const styles = StyleSheet.create({
   },
   previewLetter: {
     color: colors.text.onTile,
-    fontSize: fontSize.xl,
-    fontWeight: fontWeight.bold,
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.display,
   },
-  dailyDescription: {
-    color: colors.text.secondary,
-    fontSize: fontSize.sm,
-    lineHeight: 20,
-    marginBottom: spacing.base,
-  },
-  dailyHighlight: {
-    color: colors.brand.primary,
-    fontWeight: fontWeight.bold,
-  },
-  playButton: {
+  dailyPlayBtn: {
     backgroundColor: colors.brand.primary,
     borderRadius: radius.md,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  playButtonText: {
-    color: colors.text.primary,
+  dailyPlayBtnText: {
+    color: colors.bg.primary,
     fontSize: fontSize.base,
-    fontWeight: fontWeight.bold,
+    fontFamily: fontFamily.bodySemiBold,
+    letterSpacing: 2,
   },
-  tabBar: {
+
+  // ── Lives ──
+  livesRow: {
     flexDirection: 'row',
-    backgroundColor: colors.bg.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.bg.surfaceLight,
-    paddingVertical: spacing.sm,
-    paddingBottom: spacing.base,
-  },
-  tab: {
-    flex: 1,
     alignItems: 'center',
-    gap: 2,
+    justifyContent: 'space-between',
+    backgroundColor: colors.bg.surface,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.tile.border,
   },
-  tabIcon: {
-    fontSize: 20,
-    opacity: 0.5,
+  livesLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
-  tabIconActive: {
-    fontSize: 20,
+  livesEmojis: {
+    fontSize: 16,
+    letterSpacing: 2,
   },
-  tabLabel: {
+  livesText: {
+    color: colors.text.secondary,
+    fontSize: fontSize.sm,
+  },
+  livesReset: {
     color: colors.text.muted,
     fontSize: fontSize.xs,
   },
-  tabLabelActive: {
-    color: colors.text.primary,
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.medium,
+
+  // ── Level Badge ──
+  levelBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.bg.surface,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.tile.border,
   },
+  levelEmoji: {
+    fontSize: 32,
+  },
+  levelTitle: {
+    color: colors.text.primary,
+    fontSize: fontSize.base,
+    fontFamily: fontFamily.heading,
+  },
+  levelSubtitle: {
+    color: colors.text.muted,
+    fontSize: fontSize.sm,
+  },
+
+  // ── Game Modes ──
+  sectionTitle: {
+    color: colors.text.primary,
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.heading,
+    marginBottom: spacing.md,
+  },
+  modesRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  modeCard: {
+    flex: 1,
+    backgroundColor: colors.bg.surface,
+    borderRadius: radius.lg,
+    padding: spacing.base,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.tile.border,
+  },
+  modeCardAccent: {
+    borderColor: colors.brand.primary,
+  },
+  modeIcon: {
+    fontSize: 28,
+    marginBottom: spacing.sm,
+  },
+  modeTitle: {
+    color: colors.text.primary,
+    fontSize: fontSize.lg,
+    fontFamily: fontFamily.heading,
+    marginBottom: spacing.xs,
+  },
+  modeDesc: {
+    color: colors.text.secondary,
+    fontSize: fontSize.xs,
+    textAlign: 'center',
+    lineHeight: 16,
+    marginBottom: spacing.md,
+  },
+  modePlayPill: {
+    backgroundColor: colors.bg.surfaceLight,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
+  },
+  modePlayPillAccent: {
+    backgroundColor: colors.brand.primary,
+  },
+  modePlayText: {
+    color: colors.text.primary,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.bodySemiBold,
+  },
+  modePlayTextAccent: {
+    color: colors.bg.primary,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamily.bodySemiBold,
+  },
+
 });

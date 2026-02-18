@@ -1,48 +1,78 @@
-// Tweetle Design Tokens
-// Single source of truth — matches tokens/design-tokens.md
+// Tweetle Design Tokens — Teal/Navy theme
+// Single source of truth — matches tweetle_skills design spec
 
 export const colors = {
   // Brand
   brand: {
-    primary: '#F646E4',
-    primaryAlpha: '#F646E4B2',
-    secondary: '#371C5F',
-    secondaryAlpha: '#371C5FE5',
+    primary: '#00E5CC',
+    primaryAlpha: '#00E5CCB2',
+    secondary: '#0E1A20',
+    secondaryAlpha: '#0E1A20E5',
+    accent: '#E8A530',
+    accentAlpha: '#E8A53080',
   },
 
   // Backgrounds
   bg: {
-    primary: '#000000',
-    surface: '#1A1A2E',
-    surfaceLight: '#2A2A3E',
+    primary: '#0E1A20',
+    surface: '#14232B',
+    surfaceLight: '#1A2D36',
   },
 
   // Tile states
   tile: {
-    correct: '#22C55E',
-    present: '#CA8A04',
-    absent: '#4B5563',
-    empty: '#2A2A3E',
-    border: '#4B5563',
-    activeBorder: '#F646E4B2',
+    correct: '#1B8E47',
+    present: '#FFD93D',
+    absent: 'rgba(12,141,138,0.32)',
+    empty: '#14232B',
+    border: '#1E4A5A',
+    activeBorder: '#00E5CCB2',
+  },
+
+  // Splash
+  splash: {
+    sky: '#66E1DE',
+    skyLight: '#EDFFFF',
+    skyDark: '#07BAB5',
+    grass: '#5CB338',
+    earth: '#C5961B',
+    nest: '#E8A530',
+    banner: '#B2E5DC',
   },
 
   // UI feedback
-  success: '#22C55E',
+  success: '#1B8E47',
   warning: '#EAB308',
   error: '#EF4444',
-  info: '#3B82F6',
+  info: '#00E5CC',
   gold: '#D4A017',
   silver: '#9CA3AF',
 
   // Text
   text: {
     primary: '#FFFFFF',
-    secondary: '#9CA3AF',
-    accent: '#F646E4',
-    muted: '#6B7280',
+    secondary: '#8BA8B8',
+    accent: '#00E5CC',
+    muted: '#4A6A7A',
     onTile: '#FFFFFF',
   },
+} as const;
+
+export const gradients = {
+  splash: ['#EDFFFF', '#EDFFFF', '#66E1DE', '#07BAB5'] as const,
+  splashLocations: [0, 0.15, 0.5, 1] as const,
+  header: ['#0E1A20', '#14232B'] as const,
+  gold: ['#E8A530', '#D4941A'] as const,
+} as const;
+
+export const fontFamily = {
+  display: 'Bungee',
+  heading: 'FredokaOne',
+  body: 'Inter',
+  bodyMedium: 'Inter-Medium',
+  bodySemiBold: 'Inter-SemiBold',
+  bodyBold: 'Inter-Bold',
+  mono: 'JetBrainsMono',
 } as const;
 
 export const spacing = {
