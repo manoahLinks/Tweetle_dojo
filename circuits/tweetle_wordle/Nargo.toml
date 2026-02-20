@@ -1,0 +1,6 @@
+[package]
+name = "tweetle_wordle"
+type = "bin"
+authors = [""]
+
+[dependencies]

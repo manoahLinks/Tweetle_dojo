@@ -1,0 +1,15 @@
+# Solution: "crane" (private)
+solution = [99, 114, 97, 110, 101]
+salt = "1"
+
+# Commitment: poseidon2(pack("crane"), 1) (public)
+commitment = "0x2f1deaa97c8156052e42dc0691688e6148a9cda8611cc97c6271961d2947f607"
+
+# Guess: "trace" (public)
+guess = [116, 114, 97, 99, 101]
+
+# Clue: t=absent(0), r=correct(2), a=correct(2), c=present(1), e=correct(2) (public)
+clue = [0, 2, 2, 1, 2]
+
+# Packed: 0*256 + 2*64 + 2*16 + 1*4 + 2 = 166 (public)
+clue_packed = "166"
