@@ -66,9 +66,9 @@ pub mod tournament_manager {
 
     const MAX_ATTEMPTS: u8 = 6;
     const CONFIG_ID: u8 = 0;
-    // All correct clue: each position = 2 (correct), packed as base-3 digits
-    // 2*81 + 2*27 + 2*9 + 2*3 + 2 = 242
-    const ALL_CORRECT_CLUE: u16 = 242;
+    // All correct clue: each position = 2 (correct), packed as base-4 digits
+    // 2*256 + 2*64 + 2*16 + 2*4 + 2 = 682 (matches actions.cairo encoding)
+    const ALL_CORRECT_CLUE: u16 = 682;
     // Prize distribution basis points (out of 10000)
     const PRIZE_1ST_BPS: u256 = 5000; // 50%
     const PRIZE_2ND_BPS: u256 = 2500; // 25%
@@ -489,7 +489,7 @@ pub mod tournament_manager {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn world_default(self: @ContractState) -> dojo::world::WorldStorage {
-            self.world(@"tweetle_revamp")
+            self.world(@"tweetle_dojo")
         }
     }
 }
