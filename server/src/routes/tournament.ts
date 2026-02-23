@@ -4,6 +4,27 @@ import { computeClue, packClue, wordToBytes, packWord } from '../wordle.js';
 import { WORDS, WORD_COUNT } from '../words.js';
 import { storeTournament, getTournament } from '../db.js';
 
+const DEV_MODE = process.env.DEV_MODE === '1';
+
+/**
+ * Build mock calldata (12 felt252 values) matching the public input layout
+ * expected by tournament_manager: commitment, guess[5], clue[5], clue_packed.
+ * Used with mock_verifier on local Katana.
+ */
+function buildMockCalldata(
+  commitment: string,
+  guessBytes: number[],
+  clue: number[],
+  cluePacked: number,
+): string[] {
+  return [
+    commitment, // PI_COMMITMENT = 0
+    ...guessBytes.map(String), // PI_GUESS_START = 1..5
+    ...clue.map(String), // PI_CLUE_START = 6..10
+    String(cluePacked), // PI_CLUE_PACKED = 11
+  ];
+}
+
 interface CreateBody {
   wordIndex?: number; // Optional: use a specific word. If omitted, random.
 }
@@ -38,8 +59,16 @@ export async function tournamentRoutes(app: FastifyInstance) {
     );
     const salt = saltBig.toString();
 
-    // Compute commitment using the helper circuit
-    const commitment = await computeCommitment(solution, salt);
+    let commitment: string;
+    if (DEV_MODE) {
+      // Dev mode: use a simple deterministic commitment
+      // The exact value doesn't matter as long as create and prove use the same one
+      const packed = packWord(solution);
+      commitment = '0x' + ((packed * 31n) + BigInt(salt.length)).toString(16);
+      app.log.info(`[DEV] Mock commitment: ${commitment}`);
+    } else {
+      commitment = await computeCommitment(solution, salt);
+    }
 
     return {
       commitment,
@@ -96,15 +125,24 @@ export async function tournamentRoutes(app: FastifyInstance) {
       const clue = computeClue(solution, guessBytes);
       const cluePacked = packClue(clue);
 
-      // Generate ZK proof
-      const { calldata } = await generateProof({
-        solution,
-        salt: tournament.salt,
-        commitment: tournament.commitment,
-        guess: guessBytes,
-        clue,
-        cluePacked,
-      });
+      let calldata: string[];
+
+      if (DEV_MODE) {
+        // Dev mode: mock calldata for mock_verifier (12 raw public inputs)
+        calldata = buildMockCalldata(tournament.commitment, guessBytes, clue, cluePacked);
+        app.log.info(`[DEV] Mock calldata: ${calldata.length} elements`);
+      } else {
+        // Production: full ZK proof + Garaga calldata
+        const result = await generateProof({
+          solution,
+          salt: tournament.salt,
+          commitment: tournament.commitment,
+          guess: guessBytes,
+          clue,
+          cluePacked,
+        });
+        calldata = result.calldata;
+      }
 
       return {
         calldata,

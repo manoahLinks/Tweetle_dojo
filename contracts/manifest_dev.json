@@ -58,6 +58,16 @@
       ]
     },
     {
+      "address": "0x4dba73a41a39f5435d78b30aac99b4fb95668bc584ceb4d34bf898ecb995ce5",
+      "class_hash": "0x4ce41b924e40b01206e8c772645bc905a3553f2abc1feb2ffd8a2afd8d28778",
+      "init_calldata": [],
+      "tag": "tweetle_dojo-mock_verifier",
+      "selector": "0x3dbeae67c0a586ea2c050c8b94f758b057ae9ea7d4d83c8656f269cef6441d3",
+      "systems": [
+        "upgrade"
+      ]
+    },
+    {
       "address": "0x4dbc80f9b67d85b14e4d4b985a6f8c65a64ed1ade7b0d5fdf794a3f3047f3a7",
       "class_hash": "0x6a80f453b1b6852c5c7b36cc669efc1c3fdfb68ca5c8b4e145dda42e5bf4222",
       "init_calldata": [],
@@ -1141,6 +1151,16 @@
     },
     {
       "type": "struct",
+      "name": "core::array::Span::<core::integer::u256>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<core::integer::u256>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
       "name": "core::array::Span::<core::integer::u8>",
       "members": [
         {
@@ -1256,6 +1276,20 @@
         {
           "name": "None",
           "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "core::result::Result::<core::array::Span::<core::integer::u256>, core::felt252>",
+      "variants": [
+        {
+          "name": "Ok",
+          "type": "core::array::Span::<core::integer::u256>"
+        },
+        {
+          "name": "Err",
+          "type": "core::felt252"
         }
       ]
     },
@@ -4411,6 +4445,23 @@
       "variants": []
     },
     {
+      "type": "event",
+      "name": "tweetle_dojo::systems::mock_verifier::mock_verifier::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
       "type": "interface",
       "name": "tweetle_dojo::systems::player_system::IPlayerActions",
       "items": [
@@ -4600,6 +4651,28 @@
           ],
           "outputs": [],
           "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "tweetle_dojo::systems::tournament_manager::IUltraKeccakZKHonkVerifier",
+      "items": [
+        {
+          "type": "function",
+          "name": "verify_ultra_keccak_zk_honk_proof",
+          "inputs": [
+            {
+              "name": "full_proof_with_hints",
+              "type": "core::array::Span::<core::felt252>"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::result::Result::<core::array::Span::<core::integer::u256>, core::felt252>"
+            }
+          ],
+          "state_mutability": "view"
         }
       ]
     },

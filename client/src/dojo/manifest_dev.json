@@ -58,6 +58,16 @@
       ]
     },
     {
+      "address": "0x4dba73a41a39f5435d78b30aac99b4fb95668bc584ceb4d34bf898ecb995ce5",
+      "class_hash": "0x4ce41b924e40b01206e8c772645bc905a3553f2abc1feb2ffd8a2afd8d28778",
+      "init_calldata": [],
+      "tag": "tweetle_dojo-mock_verifier",
+      "selector": "0x3dbeae67c0a586ea2c050c8b94f758b057ae9ea7d4d83c8656f269cef6441d3",
+      "systems": [
+        "upgrade"
+      ]
+    },
+    {
       "address": "0x4dbc80f9b67d85b14e4d4b985a6f8c65a64ed1ade7b0d5fdf794a3f3047f3a7",
       "class_hash": "0x6a80f453b1b6852c5c7b36cc669efc1c3fdfb68ca5c8b4e145dda42e5bf4222",
       "init_calldata": [],
@@ -65,6 +75,24 @@
       "selector": "0x5a8f02faa7e2f1fdf3788cb952b2592b79d1930240a758019050d8dbcaf712c",
       "systems": [
         "register_player",
+        "upgrade"
+      ]
+    },
+    {
+      "address": "0x3bba74f46095769d3f8a0c3abcfd64e8ce8aac03b1b5566526838dcd5100ef7",
+      "class_hash": "0x338798b6e079cb018dcc55f1e2fc8d8b5ccb038b6d12fe9dfd7cffdf79ef218",
+      "init_calldata": [],
+      "tag": "tweetle_dojo-tournament_manager",
+      "selector": "0x642e01504557fc5439c2ef1b5fd9ff664b094e6e35b5204495739cad946b051",
+      "systems": [
+        "initialize",
+        "create_tournament",
+        "join_tournament",
+        "activate_tournament",
+        "submit_guess",
+        "end_tournament",
+        "distribute_prizes",
+        "cancel_tournament",
         "upgrade"
       ]
     }
@@ -320,6 +348,28 @@
           "key": true
         },
         {
+          "name": "game_count",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "max_attempts",
+          "type": "core::integer::u8",
+          "key": false
+        }
+      ],
+      "class_hash": "0x249b11571029d4b0553d91b7e3e091c6982a0396ec7a5e914a4f050fff3a7f3",
+      "tag": "tweetle_dojo-GameConfig",
+      "selector": "0x6244ebf45c3726321393bb865c1ff8445054b2607e2d03dd2d3d981be548d8b"
+    },
+    {
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u8",
+          "key": true
+        },
+        {
           "name": "player_count",
           "type": "core::integer::u64",
           "key": false
@@ -434,6 +484,226 @@
       "class_hash": "0x10d9d6f5058ad327b3b06d30c209c7610a7bf6e9f9106bdf8499b3669704d73",
       "tag": "tweetle_dojo-PlayerUsername",
       "selector": "0x3486dbe329a76e6e26c53610a9f244e0157c3ed7b209aa4012f0904e0a7059b"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "solution_commitment",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "entry_fee",
+          "type": "core::integer::u256",
+          "key": false
+        },
+        {
+          "name": "prize_pool",
+          "type": "core::integer::u256",
+          "key": false
+        },
+        {
+          "name": "max_players",
+          "type": "core::integer::u16",
+          "key": false
+        },
+        {
+          "name": "current_players",
+          "type": "core::integer::u16",
+          "key": false
+        },
+        {
+          "name": "status",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "start_time",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "end_time",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "created_at",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "creator",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "solution_index",
+          "type": "core::integer::u32",
+          "key": false
+        },
+        {
+          "name": "solution_salt",
+          "type": "core::felt252",
+          "key": false
+        }
+      ],
+      "class_hash": "0x21d4e5b430c00354068efa5603336c79da6330c8b3d0cd7acb397534e708b85",
+      "tag": "tweetle_dojo-Tournament",
+      "selector": "0x7342b35b10f6b05740574585da448fc69da3e3713ae37be4b492aac2920c7e9"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8",
+          "key": true
+        },
+        {
+          "name": "guess_packed",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "clue_packed",
+          "type": "core::integer::u16",
+          "key": false
+        }
+      ],
+      "class_hash": "0x606993a5545ddc17648689e13e363a51764054c6473439ff61d79546d8e0015",
+      "tag": "tweetle_dojo-TournamentAttempt",
+      "selector": "0x3e5bb965e956073df6ddb513142fbfba2448bd9d2ff83a54ff622c382512ed7"
+    },
+    {
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u8",
+          "key": true
+        },
+        {
+          "name": "tournament_count",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "min_players",
+          "type": "core::integer::u16",
+          "key": false
+        },
+        {
+          "name": "max_attempts",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "platform_fee_bps",
+          "type": "core::integer::u16",
+          "key": false
+        },
+        {
+          "name": "game_master",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "fee_recipient",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "verifier_address",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        }
+      ],
+      "class_hash": "0xd4c596ccda5e36a1d2f646cd8e787295ca84a6f9b0f78c0759c528669137f1",
+      "tag": "tweetle_dojo-TournamentConfig",
+      "selector": "0x7480364163ab7b6a306d5115a73bcd219ba220f34b4b3b2d5910ade2bded2a"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": true
+        },
+        {
+          "name": "attempts_used",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "did_win",
+          "type": "core::bool",
+          "key": false
+        },
+        {
+          "name": "completed",
+          "type": "core::bool",
+          "key": false
+        },
+        {
+          "name": "completion_time",
+          "type": "core::integer::u64",
+          "key": false
+        },
+        {
+          "name": "has_joined",
+          "type": "core::bool",
+          "key": false
+        }
+      ],
+      "class_hash": "0x2596c2e5e3ecbe2e20846b7cf3402786834413330a82d8e9a8119e5887981cb",
+      "tag": "tweetle_dojo-TournamentEntry",
+      "selector": "0x15da16f999057cb8d29b9f277d6a7ad00f920645ca2a7e2ba4114bacf361963"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "rank",
+          "type": "core::integer::u16",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "prize_amount",
+          "type": "core::integer::u256",
+          "key": false
+        }
+      ],
+      "class_hash": "0x66c8f297b9f33bfeb239038fc2ced4e7b4cb17a223a017ee35e360396716897",
+      "tag": "tweetle_dojo-TournamentRanking",
+      "selector": "0x648cfd848805aa7f22a38e7e0d38590a2384f3572ee48871be51ea2344cbda0"
     }
   ],
   "events": [
@@ -636,6 +906,33 @@
     {
       "members": [
         {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "clue_packed",
+          "type": "core::integer::u16",
+          "key": false
+        }
+      ],
+      "class_hash": "0x1adaabf089189f857338c5a7a0dc70bd912a78b186d10fb55fd09634ea2407d",
+      "tag": "tweetle_dojo-GuessVerified",
+      "selector": "0xd0803c564569ba8713536775f7ab559e01ddec1c2d9be50a334dab402ae831"
+    },
+    {
+      "members": [
+        {
           "name": "game_id",
           "type": "core::integer::u64",
           "key": true
@@ -654,6 +951,165 @@
       "class_hash": "0x787672ed46c4ade8d216faff9808b50218c853c8bfcc75105bc550714844922",
       "tag": "tweetle_dojo-PlayerJoinedDaily",
       "selector": "0x5bffc76b60ce37763c1f2fd024b4d1cefff47be60a9ae6c96122b8750009cd7"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "rank",
+          "type": "core::integer::u16",
+          "key": false
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256",
+          "key": false
+        }
+      ],
+      "class_hash": "0x1053012185deb7b7b616bd456736bdaebc893dde326622761f5e67ed1b65479",
+      "tag": "tweetle_dojo-PrizeDistributed",
+      "selector": "0x6ae89e4f5b4bb986bef63dbd397d0ed6cd685f63dfdfddcfbe2c3f94b8559f7"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "current_players",
+          "type": "core::integer::u16",
+          "key": false
+        }
+      ],
+      "class_hash": "0x8b1ca5e6889512791844b4204fb164def386cc095bfe68d5f1173b79833158",
+      "tag": "tweetle_dojo-TournamentActivated",
+      "selector": "0x4cf16febf5fe7142ff901a10950d4953f2bc85ec9fee765b31214cb8603cd61"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "cancelled_at",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0x6c8f64353bd5f67cfe9b85c7ca621ecdba2fae2b69f9af383e9056d3a1076f4",
+      "tag": "tweetle_dojo-TournamentCancelled",
+      "selector": "0x2eec3e2cf63bbcaf9db8fea0569dfc2d18aea23d399fd6e146bc0357dcc788e"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "solution_index",
+          "type": "core::integer::u32",
+          "key": false
+        }
+      ],
+      "class_hash": "0x11bf9255a86e6345f6e49bb91f8c57f9f46453839f1f345f8b31e3ee808793",
+      "tag": "tweetle_dojo-TournamentCompleted",
+      "selector": "0x510830e17895f480b2cbc0161a8227a474731a00b64395e26452f67a93a6946"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "creator",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "solution_commitment",
+          "type": "core::felt252",
+          "key": false
+        },
+        {
+          "name": "entry_fee",
+          "type": "core::integer::u256",
+          "key": false
+        },
+        {
+          "name": "max_players",
+          "type": "core::integer::u16",
+          "key": false
+        }
+      ],
+      "class_hash": "0x32301de8fbd0e4c9c697cf43001dbed1918d43672eda926fc52ac398dea03cf",
+      "tag": "tweetle_dojo-TournamentCreated",
+      "selector": "0x5c7e1ee045923356cfcd914d2cb689e62e966fc90326916b66c50e33c4161bf"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "current_players",
+          "type": "core::integer::u16",
+          "key": false
+        }
+      ],
+      "class_hash": "0x31e802ed1ac27aa10dd3617d38245fa22057bd43cbf124614c47dffb168bd5b",
+      "tag": "tweetle_dojo-TournamentJoined",
+      "selector": "0x2177931ecfed6d293865cff6d8c3f53a06627f1ed6c43b1d030ef9d7f7dc5fa"
+    },
+    {
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64",
+          "key": true
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "key": false
+        },
+        {
+          "name": "attempts_used",
+          "type": "core::integer::u8",
+          "key": false
+        },
+        {
+          "name": "completion_time",
+          "type": "core::integer::u64",
+          "key": false
+        }
+      ],
+      "class_hash": "0xff3ea020d078eb5310a83fc0cb09089ec0d576b5e40a4da46250923be9313b",
+      "tag": "tweetle_dojo-TournamentWon",
+      "selector": "0x44e99908d1d8df5b13c640c0809615ad49a2e4363ebba2ce08ff883cc02f13f"
     }
   ],
   "external_contracts": [],
@@ -690,6 +1146,16 @@
         {
           "name": "snapshot",
           "type": "@core::array::Array::<core::felt252>"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::array::Span::<core::integer::u256>",
+      "members": [
+        {
+          "name": "snapshot",
+          "type": "@core::array::Array::<core::integer::u256>"
         }
       ]
     },
@@ -810,6 +1276,20 @@
         {
           "name": "None",
           "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "core::result::Result::<core::array::Span::<core::integer::u256>, core::felt252>",
+      "variants": [
+        {
+          "name": "Ok",
+          "type": "core::array::Span::<core::integer::u256>"
+        },
+        {
+          "name": "Err",
+          "type": "core::felt252"
         }
       ]
     },
@@ -2493,7 +2973,7 @@
       "inputs": [
         {
           "name": "event",
-          "type": "tweetle_dojo::systems::daily_game::daily_game::PlayerJoinedDaily"
+          "type": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentWon"
         }
       ],
       "outputs": [],
@@ -2512,7 +2992,7 @@
       "inputs": [
         {
           "name": "value",
-          "type": "tweetle_dojo::systems::daily_game::daily_game::PlayerJoinedDailyValue"
+          "type": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentWonValue"
         }
       ],
       "outputs": [],
@@ -2657,6 +3137,122 @@
     {
       "type": "event",
       "name": "tweetle_dojo::models::attempt::m_DailyAttemptCount::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::config::GameConfig",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "game_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "max_attempts",
+          "type": "core::integer::u8"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::config::GameConfigValue",
+      "members": [
+        {
+          "name": "game_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "max_attempts",
+          "type": "core::integer::u8"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::config::TournamentConfig",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "tournament_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "min_players",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "max_attempts",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "platform_fee_bps",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "game_master",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "fee_recipient",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "verifier_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::config::TournamentConfigValue",
+      "members": [
+        {
+          "name": "tournament_count",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "min_players",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "max_attempts",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "platform_fee_bps",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "game_master",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "fee_recipient",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "verifier_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::config::m_GameConfig::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::config::m_TournamentConfig::Event",
       "kind": "enum",
       "variants": []
     },
@@ -3091,6 +3687,278 @@
     {
       "type": "event",
       "name": "tweetle_dojo::models::player::m_PlayerUsername::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::tournament::Tournament",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "solution_commitment",
+          "type": "core::felt252"
+        },
+        {
+          "name": "entry_fee",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "prize_pool",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "max_players",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "current_players",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "status",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "start_time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "end_time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "created_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "creator",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "solution_index",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "solution_salt",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::tournament::TournamentAttempt",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "guess_packed",
+          "type": "core::felt252"
+        },
+        {
+          "name": "clue_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::tournament::TournamentAttemptValue",
+      "members": [
+        {
+          "name": "guess_packed",
+          "type": "core::felt252"
+        },
+        {
+          "name": "clue_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::tournament::TournamentEntry",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempts_used",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "did_win",
+          "type": "core::bool"
+        },
+        {
+          "name": "completed",
+          "type": "core::bool"
+        },
+        {
+          "name": "completion_time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "has_joined",
+          "type": "core::bool"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::tournament::TournamentEntryValue",
+      "members": [
+        {
+          "name": "attempts_used",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "did_win",
+          "type": "core::bool"
+        },
+        {
+          "name": "completed",
+          "type": "core::bool"
+        },
+        {
+          "name": "completion_time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "has_joined",
+          "type": "core::bool"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::tournament::TournamentRanking",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "rank",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "prize_amount",
+          "type": "core::integer::u256"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::tournament::TournamentRankingValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "prize_amount",
+          "type": "core::integer::u256"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::models::tournament::TournamentValue",
+      "members": [
+        {
+          "name": "solution_commitment",
+          "type": "core::felt252"
+        },
+        {
+          "name": "entry_fee",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "prize_pool",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "max_players",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "current_players",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "status",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "start_time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "end_time",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "created_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "creator",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "solution_index",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "solution_salt",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::tournament::m_Tournament::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::tournament::m_TournamentAttempt::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::tournament::m_TournamentEntry::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::models::tournament::m_TournamentRanking::Event",
       "kind": "enum",
       "variants": []
     },
@@ -3577,6 +4445,23 @@
       "variants": []
     },
     {
+      "type": "event",
+      "name": "tweetle_dojo::systems::mock_verifier::mock_verifier::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
       "type": "interface",
       "name": "tweetle_dojo::systems::player_system::IPlayerActions",
       "items": [
@@ -3614,6 +4499,519 @@
           "kind": "nested"
         }
       ]
+    },
+    {
+      "type": "interface",
+      "name": "tweetle_dojo::systems::tournament_manager::ITournamentManager",
+      "items": [
+        {
+          "type": "function",
+          "name": "initialize",
+          "inputs": [
+            {
+              "name": "game_master",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "fee_recipient",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "verifier_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "min_players",
+              "type": "core::integer::u16"
+            },
+            {
+              "name": "platform_fee_bps",
+              "type": "core::integer::u16"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "create_tournament",
+          "inputs": [
+            {
+              "name": "solution_commitment",
+              "type": "core::felt252"
+            },
+            {
+              "name": "entry_fee",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "max_players",
+              "type": "core::integer::u16"
+            },
+            {
+              "name": "start_time",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "end_time",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "join_tournament",
+          "inputs": [
+            {
+              "name": "tournament_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "activate_tournament",
+          "inputs": [
+            {
+              "name": "tournament_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "submit_guess",
+          "inputs": [
+            {
+              "name": "tournament_id",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "full_proof_with_hints",
+              "type": "core::array::Span::<core::felt252>"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "end_tournament",
+          "inputs": [
+            {
+              "name": "tournament_id",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "solution_index",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "solution_salt",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "distribute_prizes",
+          "inputs": [
+            {
+              "name": "tournament_id",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "ranked_players",
+              "type": "core::array::Array::<core::starknet::contract_address::ContractAddress>"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "cancel_tournament",
+          "inputs": [
+            {
+              "name": "tournament_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "tweetle_dojo::systems::tournament_manager::IUltraKeccakZKHonkVerifier",
+      "items": [
+        {
+          "type": "function",
+          "name": "verify_ultra_keccak_zk_honk_proof",
+          "inputs": [
+            {
+              "name": "full_proof_with_hints",
+              "type": "core::array::Span::<core::felt252>"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::result::Result::<core::array::Span::<core::integer::u256>, core::felt252>"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "UpgradeableEvent",
+          "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "nested"
+        },
+        {
+          "name": "WorldProviderEvent",
+          "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::GuessVerified",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "clue_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::GuessVerifiedValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempt_number",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "clue_packed",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::PrizeDistributed",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "rank",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::PrizeDistributedValue",
+      "members": [
+        {
+          "name": "rank",
+          "type": "core::integer::u16"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentActivated",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "current_players",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentActivatedValue",
+      "members": [
+        {
+          "name": "current_players",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentCancelled",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "cancelled_at",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentCancelledValue",
+      "members": [
+        {
+          "name": "cancelled_at",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentCompleted",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "solution_index",
+          "type": "core::integer::u32"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentCompletedValue",
+      "members": [
+        {
+          "name": "solution_index",
+          "type": "core::integer::u32"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentCreated",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "creator",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "solution_commitment",
+          "type": "core::felt252"
+        },
+        {
+          "name": "entry_fee",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "max_players",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentCreatedValue",
+      "members": [
+        {
+          "name": "creator",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "solution_commitment",
+          "type": "core::felt252"
+        },
+        {
+          "name": "entry_fee",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "max_players",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentJoined",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "current_players",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentJoinedValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "current_players",
+          "type": "core::integer::u16"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentWon",
+      "members": [
+        {
+          "name": "tournament_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempts_used",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "completion_time",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::TournamentWonValue",
+      "members": [
+        {
+          "name": "player",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "attempts_used",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "completion_time",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::e_GuessVerified::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::e_PrizeDistributed::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::e_TournamentActivated::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::e_TournamentCancelled::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::e_TournamentCompleted::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::e_TournamentCreated::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::e_TournamentJoined::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "tweetle_dojo::systems::tournament_manager::tournament_manager::e_TournamentWon::Event",
+      "kind": "enum",
+      "variants": []
     }
   ]
 }

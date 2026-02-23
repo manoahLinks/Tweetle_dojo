@@ -4,6 +4,7 @@ pub mod systems {
     pub mod word;
     pub mod daily_game;
     pub mod tournament_manager;
+    pub mod mock_verifier;
 }
 
 pub mod models {
