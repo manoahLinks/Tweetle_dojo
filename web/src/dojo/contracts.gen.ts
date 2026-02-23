@@ -86,12 +86,19 @@ export function setupWorld(provider: DojoProvider) {
     tournamentId: BigNumberish,
     fullProofWithHints: string[],
   ) => {
-    const call: DojoCall = {
-      contractName: 'tournament_manager',
+    // Bypass DojoProvider.execute — it validates arg count against the ABI and
+    // rejects the large proof calldata (2889 elements).
+    // Use raw account.execute with the resolved contract address instead.
+    const contract = provider.manifest?.contracts?.find(
+      (c: any) => c.tag === `${NS}-tournament_manager` || c.name === `${NS}-tournament_manager`,
+    );
+    if (!contract?.address) throw new Error('tournament_manager contract not found in manifest');
+
+    return snAccount.execute([{
+      contractAddress: contract.address,
       entrypoint: 'submit_guess',
-      calldata: [tournamentId, fullProofWithHints.length, ...fullProofWithHints],
-    };
-    return provider.execute(snAccount, call, NS);
+      calldata: [tournamentId, fullProofWithHints.length, ...fullProofWithHints].map(String),
+    }]);
   };
 
   const tournament_manager_createTournament = async (

@@ -59,12 +59,20 @@ export function AdminPage() {
       );
 
       // 3. Poll Torii until the new tournament (matching commitment) is indexed
+      // Noir computes on BN254 (254-bit) but Starknet stores as felt252.
+      // The on-chain value = commitment % STARK_PRIME.
+      const STARK_PRIME = 2n ** 251n + 17n * 2n ** 192n + 1n;
+      const commitmentFelt = BigInt(proverResult.commitment) % STARK_PRIME;
       let tid: number | null = null;
       for (let attempt = 0; attempt < 30; attempt++) {
         const tournaments = await fetchTournaments(20);
-        const match = tournaments.find(
-          (t) => t.solution_commitment === proverResult.commitment,
-        );
+        const match = tournaments.find((t) => {
+          try {
+            return BigInt(t.solution_commitment) === commitmentFelt;
+          } catch {
+            return false;
+          }
+        });
         if (match) {
           tid = Number(match.tournament_id);
           break;

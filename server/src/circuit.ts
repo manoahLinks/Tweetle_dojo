@@ -14,6 +14,9 @@ import { fileURLToPath } from 'url';
 const exec = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Starknet felt252 prime: P = 2^251 + 17 * 2^192 + 1
+const STARK_PRIME = 2n ** 251n + 17n * 2n ** 192n + 1n;
+
 // Circuit directories
 const MAIN_CIRCUIT_DIR = path.resolve(__dirname, '../../circuits/tweetle_wordle');
 const COMMITMENT_CIRCUIT_DIR = path.resolve(__dirname, '../../circuits/tweetle_commitment');
@@ -61,7 +64,21 @@ export async function computeCommitment(
     throw new Error(`Failed to extract commitment from nargo output: ${stdout}`);
   }
 
+  // Verify the commitment fits in felt252. Noir's Poseidon2 operates on BN254
+  // which can produce values up to ~2^254, but Starknet's felt252 max is ~2^251.
+  // If the value overflows, the caller should retry with a different salt.
+  const val = BigInt(match[1]);
+  if (val >= STARK_PRIME) {
+    throw new CommitmentOverflowError(match[1]);
+  }
+
   return match[1];
+}
+
+export class CommitmentOverflowError extends Error {
+  constructor(public readonly commitment: string) {
+    super('Commitment exceeds felt252 range — retry with a different salt');
+  }
 }
 
 /**
@@ -89,7 +106,7 @@ export async function generateProof(input: ProofInput): Promise<ProofResult> {
     '-s', 'ultra_honk',
     '--oracle_hash', 'keccak',
     '-b', path.join(MAIN_TARGET_DIR, 'tweetle_wordle.json'),
-    '-w', path.join(MAIN_TARGET_DIR, 'witness.gz'),
+    '-w', path.join(MAIN_TARGET_DIR, 'tweetle_wordle.gz'),
     '-k', VK_PATH,
     '-o', proofDir,
   ], { env: ENV });
@@ -129,17 +146,8 @@ function buildProverToml(input: ProofInput): string {
 function parseGaragaOutput(stdout: string): string[] {
   const trimmed = stdout.trim();
 
-  // Try JSON parse first
-  try {
-    const parsed = JSON.parse(trimmed);
-    if (Array.isArray(parsed)) {
-      return parsed.map((v: string | number) => String(v));
-    }
-  } catch {
-    // Not JSON
-  }
-
-  // Extract hex values from bracket notation
+  // Extract values from bracket notation as raw strings.
+  // Do NOT use JSON.parse — it converts large integers to floats, losing precision.
   const match = trimmed.match(/\[([^\]]+)\]/s);
   if (match) {
     return match[1]

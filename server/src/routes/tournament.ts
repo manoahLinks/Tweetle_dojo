@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { computeCommitment, generateProof } from '../circuit.js';
+import { computeCommitment, generateProof, CommitmentOverflowError } from '../circuit.js';
 import { computeClue, packClue, wordToBytes, packWord } from '../wordle.js';
 import { WORDS, WORD_COUNT } from '../words.js';
 import { storeTournament, getTournament } from '../db.js';
@@ -50,24 +50,47 @@ export async function tournamentRoutes(app: FastifyInstance) {
     const word = WORDS[wordIndex];
     const solution = wordToBytes(word);
 
-    // Generate random salt (as a decimal string Field)
-    const saltBig = BigInt(
-      '0x' +
-        Array.from(crypto.getRandomValues(new Uint8Array(16)))
-          .map((b) => b.toString(16).padStart(2, '0'))
-          .join(''),
-    );
-    const salt = saltBig.toString();
+    // Retry with different salts until the Poseidon2 commitment fits in felt252.
+    // BN254 field is ~2^254 but Starknet felt252 max is ~2^251, so ~1/8 of
+    // commitments overflow. Retrying with a new salt is cheap (~200ms each).
+    const MAX_SALT_ATTEMPTS = 20;
+    let salt = '';
+    let commitment = '';
 
-    let commitment: string;
     if (DEV_MODE) {
-      // Dev mode: use a simple deterministic commitment
-      // The exact value doesn't matter as long as create and prove use the same one
+      const saltBig = BigInt(
+        '0x' +
+          Array.from(crypto.getRandomValues(new Uint8Array(16)))
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join(''),
+      );
+      salt = saltBig.toString();
       const packed = packWord(solution);
       commitment = '0x' + ((packed * 31n) + BigInt(salt.length)).toString(16);
       app.log.info(`[DEV] Mock commitment: ${commitment}`);
     } else {
-      commitment = await computeCommitment(solution, salt);
+      for (let i = 0; i < MAX_SALT_ATTEMPTS; i++) {
+        const saltBig = BigInt(
+          '0x' +
+            Array.from(crypto.getRandomValues(new Uint8Array(16)))
+              .map((b) => b.toString(16).padStart(2, '0'))
+              .join(''),
+        );
+        salt = saltBig.toString();
+        try {
+          commitment = await computeCommitment(solution, salt);
+          break; // Fits in felt252
+        } catch (err) {
+          if (err instanceof CommitmentOverflowError) {
+            app.log.info(`Salt attempt ${i + 1}: commitment overflows felt252, retrying...`);
+            continue;
+          }
+          throw err;
+        }
+      }
+      if (!commitment) {
+        return reply.code(500).send({ error: 'Failed to find a valid commitment after retries' });
+      }
     }
 
     return {
