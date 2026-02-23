@@ -18,6 +18,8 @@ interface WalletContextValue {
 const WalletContext = createContext<WalletContextValue | null>(null);
 
 // Contract addresses from the deployed manifest
+const ACTIONS = '0x97b632e93243e3c8fa31ea94580ae1e54f8338015c811b6413455cdeb319b8';
+const DAILY_GAME = '0x6b4d457983ca94b1c7ecda18411a01e5c1cbdd96cd4e92b46fd984df9751300';
 const TOURNAMENT_MANAGER = '0x5efad73bc9c5401383fd9c0fb76b2db60356f1c4fcc9fed60f29fa8cd7dc236';
 const PLAYER_SYSTEM = '0x143fb2cfabb7277a1b8696284f0ca6327698d2db74097fe7967cc13975dd239';
 
@@ -26,6 +28,21 @@ const controller = new Controller({
   chains: [{ rpcUrl: RPC_URL }],
   policies: {
     contracts: {
+      [ACTIONS]: {
+        name: 'Actions',
+        methods: [
+          { name: 'Start Game', entrypoint: 'start_game' },
+          { name: 'Submit Guess', entrypoint: 'submit_guess' },
+        ],
+      },
+      [DAILY_GAME]: {
+        name: 'Daily Game',
+        methods: [
+          { name: 'Get or Create Daily Game', entrypoint: 'get_or_create_daily_game' },
+          { name: 'Join Daily Game', entrypoint: 'join_daily_game' },
+          { name: 'Submit Daily Guess', entrypoint: 'submit_daily_guess' },
+        ],
+      },
       [TOURNAMENT_MANAGER]: {
         name: 'Tournament Manager',
         methods: [

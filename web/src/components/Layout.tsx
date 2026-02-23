@@ -1,6 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ConnectButton } from './ConnectButton';
 
+const NAV_LINKS = [
+  { path: '/', label: 'Home' },
+  { path: '/classic', label: 'Classic' },
+  { path: '/daily', label: 'Daily' },
+  { path: '/tournaments', label: 'Tournaments' },
+  { path: '/admin', label: 'Admin' },
+];
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
@@ -10,26 +18,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 no-underline">
             <span className="font-display text-xl text-brand">TWEETLE</span>
-            <span className="text-xs text-text-muted font-mono tracking-widest">TOURNAMENT</span>
           </Link>
 
-          <nav className="flex items-center gap-4">
-            <Link
-              to="/"
-              className={`text-sm no-underline transition-colors ${
-                location.pathname === '/' ? 'text-brand' : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              Tournaments
-            </Link>
-            <Link
-              to="/admin"
-              className={`text-sm no-underline transition-colors ${
-                location.pathname === '/admin' ? 'text-brand' : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              Admin
-            </Link>
+          <nav className="flex items-center gap-3">
+            {NAV_LINKS.map(({ path, label }) => (
+              <Link
+                key={path}
+                to={path}
+                className={`text-sm no-underline transition-colors ${
+                  location.pathname === path
+                    ? 'text-brand'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
             <ConnectButton />
           </nav>
         </div>
