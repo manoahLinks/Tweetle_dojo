@@ -100,7 +100,7 @@ export function useGameActions() {
 
   const resumeOrStartGame = useCallback(async (): Promise<ResumedGameState> => {
     if (!playerAddress) throw new Error('Dojo not initialized');
-    const { data } = await apolloClient.query({
+    const { data } = await apolloClient.query<any>({
       query: GET_LATEST_CLASSIC_GAME,
       variables: { player: playerAddress },
       fetchPolicy: 'network-only',
@@ -109,7 +109,7 @@ export function useGameActions() {
     const latestGame = data?.tweetleDojoClassicGameModels?.edges?.[0]?.node;
 
     if (latestGame && !latestGame.has_ended) {
-      const { data: attemptsData } = await apolloClient.query({
+      const { data: attemptsData } = await apolloClient.query<any>({
         query: GET_GAME_ATTEMPTS,
         variables: { player: playerAddress, gameId: latestGame.game_id },
         fetchPolicy: 'network-only',
@@ -137,7 +137,7 @@ export function useGameActions() {
     const gameIdHex = '0x' + gameId.toString(16);
     const expiresAt = (gameId + 1) * SECONDS_PER_DAY;
 
-    const { data: acData } = await apolloClient.query({
+    const { data: acData } = await apolloClient.query<any>({
       query: GET_DAILY_ATTEMPT_COUNT,
       variables: { player: playerAddress, gameId: gameIdHex },
       fetchPolicy: 'network-only',
