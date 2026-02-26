@@ -1,0 +1,81 @@
+# Stage 1: Build TypeScript
+FROM node:22-slim AS builder
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app/server
+COPY server/package.json server/pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile || pnpm install
+
+COPY server/tsconfig.json ./
+COPY server/src ./src
+RUN pnpm run build
+
+# Stage 2: Runtime with ZK toolchain
+FROM node:22-bookworm
+
+# Install system deps for Python 3.10 build + general tooling
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    bash \
+    ca-certificates \
+    build-essential \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libncursesw5-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libffi-dev \
+    liblzma-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python 3.10 from source (garaga requires >=3.10,<3.11)
+ARG PYTHON_VERSION=3.10.16
+RUN curl -fsSL https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz | tar xz \
+    && cd Python-${PYTHON_VERSION} \
+    && ./configure --enable-optimizations --prefix=/usr/local/python310 \
+    && make -j$(nproc) \
+    && make install \
+    && cd / && rm -rf Python-${PYTHON_VERSION}
+
+ENV PATH="/usr/local/python310/bin:${PATH}"
+RUN python3.10 -m pip install --upgrade pip && python3.10 -m pip install garaga==1.0.1
+# Symlink garaga to a known path
+RUN ln -s /usr/local/python310/bin/garaga /usr/local/bin/garaga
+
+# Install nargo (Noir compiler)
+ENV NARGO_HOME="/root/.nargo"
+ENV PATH="${NARGO_HOME}/bin:${PATH}"
+RUN curl -fsSL https://raw.githubusercontent.com/noir-lang/noirup/refs/heads/main/install | bash \
+    && noirup -v 1.0.0-beta.16
+
+# Install bb (Barretenberg) — auto-resolves version compatible with installed nargo
+ENV BB_HOME="/root/.bb"
+ENV PATH="${BB_HOME}:${PATH}"
+RUN curl -fsSL https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/master/barretenberg/bbup/install | bash \
+    && bbup
+
+WORKDIR /app
+
+# Copy compiled server
+COPY --from=builder /app/server/dist ./server/dist
+COPY --from=builder /app/server/node_modules ./server/node_modules
+COPY server/package.json ./server/
+
+# Copy circuit sources and precompiled artifacts
+COPY circuits/tweetle_wordle/Nargo.toml circuits/tweetle_wordle/Nargo.toml
+COPY circuits/tweetle_wordle/src/ circuits/tweetle_wordle/src/
+COPY circuits/tweetle_wordle/target/tweetle_wordle.json circuits/tweetle_wordle/target/tweetle_wordle.json
+COPY circuits/tweetle_wordle/target/vk/ circuits/tweetle_wordle/target/vk/
+COPY circuits/tweetle_commitment/Nargo.toml circuits/tweetle_commitment/Nargo.toml
+COPY circuits/tweetle_commitment/src/ circuits/tweetle_commitment/src/
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+EXPOSE 3001
+
+CMD ["node", "server/dist/index.js"]

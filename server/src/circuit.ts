@@ -112,10 +112,7 @@ export async function generateProof(input: ProofInput): Promise<ProofResult> {
   ], { env: ENV });
 
   // 5. Generate Starknet calldata with garaga
-  const garagaPath = path.join(
-    process.env.HOME!,
-    '.pyenv/versions/3.10.19/bin/garaga',
-  );
+  const garagaPath = process.env.GARAGA_PATH || 'garaga';
   const { stdout } = await exec(garagaPath, [
     'calldata',
     '--system', 'ultra_keccak_zk_honk',

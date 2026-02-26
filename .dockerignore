@@ -1,0 +1,30 @@
+# Client apps
+client/
+web/
+
+# Smart contracts
+contracts/
+
+# Git
+.git/
+.gitignore
+
+# Node modules (installed in Docker)
+node_modules/
+server/node_modules/
+server/dist/
+
+# Circuit build artifacts (only keep what Dockerfile COPYs explicitly)
+circuits/tweetle_wordle/target/proof_out/
+circuits/tweetle_wordle/target/witness.gz
+circuits/tweetle_wordle/target/tweetle_wordle.gz
+circuits/tweetle_wordle/Prover.toml
+circuits/tweetle_commitment/target/
+circuits/tweetle_commitment/Prover.toml
+circuits/tweetle_verifier/
+
+# Misc
+.claude/
+*.md
+.env
+.env.*

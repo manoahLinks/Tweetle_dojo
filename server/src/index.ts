@@ -6,13 +6,16 @@ const PORT = parseInt(process.env.PORT || '3001');
 const HOST = process.env.HOST || '0.0.0.0';
 
 async function main() {
+  const isDev = process.env.NODE_ENV !== 'production';
   const app = Fastify({
     logger: {
       level: 'info',
-      transport: {
-        target: 'pino-pretty',
-        options: { translateTime: 'HH:MM:ss', ignore: 'pid,hostname' },
-      },
+      ...(isDev && {
+        transport: {
+          target: 'pino-pretty',
+          options: { translateTime: 'HH:MM:ss', ignore: 'pid,hostname' },
+        },
+      }),
     },
   });
 
