@@ -49,14 +49,14 @@ RUN ln -s /usr/local/python310/bin/garaga /usr/local/bin/garaga
 # Install nargo (Noir compiler)
 ENV NARGO_HOME="/root/.nargo"
 ENV PATH="${NARGO_HOME}/bin:${PATH}"
-RUN curl -fsSL https://raw.githubusercontent.com/noir-lang/noirup/refs/heads/main/install | bash \
-    && noirup -v 1.0.0-beta.16
+RUN curl -fsSL https://raw.githubusercontent.com/noir-lang/noirup/refs/heads/main/install | bash
+RUN noirup -v 1.0.0-beta.16
 
 # Install bb (Barretenberg) — auto-resolves version compatible with installed nargo
 ENV BB_HOME="/root/.bb"
 ENV PATH="${BB_HOME}:${PATH}"
-RUN curl -fsSL https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/master/barretenberg/bbup/install | bash \
-    && bbup
+RUN curl -fsSL https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/master/barretenberg/bbup/install | bash
+RUN bbup
 
 WORKDIR /app
 
