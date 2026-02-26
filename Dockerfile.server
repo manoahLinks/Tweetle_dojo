@@ -46,17 +46,21 @@ RUN python3.10 -m pip install --upgrade pip && python3.10 -m pip install garaga=
 # Symlink garaga to a known path
 RUN ln -s /usr/local/python310/bin/garaga /usr/local/bin/garaga
 
-# Install nargo (Noir compiler)
-ENV NARGO_HOME="/root/.nargo"
-ENV PATH="${NARGO_HOME}/bin:${PATH}"
-RUN curl -fsSL https://raw.githubusercontent.com/noir-lang/noirup/refs/heads/main/install | bash
-RUN /root/.nargo/bin/noirup -v 1.0.0-beta.16
+# Install nargo directly from GitHub release (no installer scripts in Docker)
+ARG NARGO_VERSION=1.0.0-beta.16
+RUN mkdir -p /usr/local/nargo \
+    && curl -fsSL "https://github.com/noir-lang/noir/releases/download/v${NARGO_VERSION}/nargo-x86_64-unknown-linux-gnu.tar.gz" \
+       | tar xz -C /usr/local/nargo \
+    && chmod +x /usr/local/nargo/nargo
+ENV PATH="/usr/local/nargo:${PATH}"
 
-# Install bb (Barretenberg) — auto-resolves version compatible with installed nargo
-ENV BB_HOME="/root/.bb"
-ENV PATH="${BB_HOME}:${PATH}"
-RUN curl -fsSL https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/master/barretenberg/bbup/install | bash
-RUN /root/.bb/bbup
+# Install bb directly from GitHub release
+ARG BB_VERSION=3.0.0-nightly.20251104
+RUN mkdir -p /usr/local/bb \
+    && curl -fsSL "https://github.com/AztecProtocol/aztec-packages/releases/download/v${BB_VERSION}/barretenberg-amd64-linux.tar.gz" \
+       | tar xz -C /usr/local/bb \
+    && chmod +x /usr/local/bb/bb
+ENV PATH="/usr/local/bb:${PATH}"
 
 WORKDIR /app
 
